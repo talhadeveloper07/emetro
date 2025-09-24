@@ -211,7 +211,25 @@ Route::middleware(['auth','2fa'])->group(function () {
     Route::group(['prefix' => 'service_change', 'as' => 'service_change.'], function () {
         Route::get('/', [AdminController::class, 'serviceChangeIndex'])->name('index');
     });
-Route::group(['prefix' => 'provisioning', 'as' => 'provisioning.'], function () {
+    Route::group(['prefix' => 'provisioning', 'as' => 'provisioning.'], function () {
+
+
+
+        // // Infinity 5xxx Routes
+        // Route::get('/infinity5xxx', [ProvisioningInfinity5xxxController::class, 'infinity5'])->name('infinity5');
+        // Route::get('/infinity5xxx/data', [ProvisioningInfinity5xxxController::class, 'getData'])->name('infinity5xxx.data');
+
+          Route::get('/infinity5xxx', [ProvisioningInfinity5xxxController::class, 'infinity5'])->name('infinity5');
+    Route::get('/infinity5xxx/data', [ProvisioningInfinity5xxxController::class, 'getData'])->name('infinity5xxx.data');
+    
+    // New routes for edit/delete functionality
+    Route::get('/infinity5xxx/{id}/get', [ProvisioningInfinity5xxxController::class, 'getRecord'])->name('infinity5xxx.get');
+    Route::put('/infinity5xxx/{id}/update', [ProvisioningInfinity5xxxController::class, 'updateRecord'])->name('infinity5xxx.update');
+    Route::delete('/infinity5xxx/{id}/delete', [ProvisioningInfinity5xxxController::class, 'deleteRecord'])->name('infinity5xxx.delete');
+    // Multiple records operations
+    Route::get('/infinity5xxx/get-multiple', [ProvisioningInfinity5xxxController::class, 'getMultipleRecords'])->name('infinity5xxx.get.multiple');
+    Route::put('/infinity5xxx/update-multiple', [ProvisioningInfinity5xxxController::class, 'updateMultipleRecords'])->name('infinity5xxx.update.multiple');
+    Route::delete('/infinity5xxx/delete-multiple', [ProvisioningInfinity5xxxController::class, 'deleteMultiple'])->name('infinity5xxx.delete.multiple');
     Route::get('/', [ProvisioningController::class, 'index'])->name('index');
     Route::get('/infinity7xxx', [ProvisioningController::class, 'infinity7'])->name('infinity7');
     Route::get('/infinity7xxx/details/{slno}', [ProvisioningController::class, 'infinity7_details'])->name('infinity7_details');
@@ -228,11 +246,6 @@ Route::group(['prefix' => 'provisioning', 'as' => 'provisioning.'], function () 
     Route::get('/infinity3065/export', [ProvisioningInfinity3065Controller::class, 'export'])->name('infinity3065.export');
     Route::get('/get-serials', [ProvisioningInfinity3065Controller::class, 'getSerials'])->name('serials.get');
 
-    // Infinity 5xxx Routes
-    Route::get('/infinity5xxx', [ProvisioningInfinity5xxxController::class, 'infinity5'])->name('infinity5');
-    Route::get('/infinity5xxx/data', [ProvisioningInfinity5xxxController::class, 'getData'])->name('infinity5xxx.data');
-
-    
 
     // ✅ Live XML Route
     Route::get('/softphones-xml', function () {
