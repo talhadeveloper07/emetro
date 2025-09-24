@@ -124,7 +124,7 @@
                                     <th>Serial Number</th>
                                     <th>MAC Address</th>
                                     <th>Phone Type</th>
-                                    <!-- <th>UCX SN</th> -->
+                                    <th>UCX SN</th>
                                     <!-- <th>S1 Ip</th> -->
                                     <th>Reseller</th>
                                     <th>Status</th>
@@ -527,6 +527,7 @@ $(function(){
             { data: 'slno' },
             { data: 'mac_address_0' },
             { data: 'product_code' },
+            { data: 'parent_slno' },
             { data: 're_seller' },
             { data: 'status' },
             { data: 'site_name' },

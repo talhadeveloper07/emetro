@@ -30,7 +30,7 @@ class ProvisioningInfinity5xxxController extends Controller
         $start = $request->input('start');
     
         // Ordering
-        $orderColumnIndex = $request->input('order.0.column'); // which column index
+        $orderColumnIndex = $request->input('order.0.column'); 
         $orderColumnName  = $columns[$orderColumnIndex] ?? 'product_serial.slno';
         $orderDir         = $request->input('order.0.dir', 'desc');
     
@@ -46,41 +46,33 @@ class ProvisioningInfinity5xxxController extends Controller
         $totalData = $query->count();
     
         // -------------------------
-        // Apply Filters from Form
+        // Apply Filters
         // -------------------------
         if ($request->filled('org_id')) {
             $query->where('product_serial.re_seller', $request->org_id);
         }
-    
         if ($request->filled('phone_type')) {
             $query->where('product_serial.product_code', 'like', "%" . $request->phone_type . "%");
         }
-    
         if ($request->filled('phone_serial_number')) {
             $query->where('product_serial.slno', 'like', "%" . $request->phone_serial_number . "%");
         }
-    
         if ($request->filled('mac_address')) {
             $query->where('product_serial.mac_address_0', 'like', "%" . $request->mac_address . "%");
         }
-    
         if ($request->filled('s1_ip')) {
             $query->where('product_serial_parent_child.s1_ip', 'like', "%" . $request->s1_ip . "%");
         }
-    
         if ($request->filled('s2_ip')) {
             $query->where('product_serial_parent_child.s2_ip', 'like', "%" . $request->s2_ip . "%");
         }
-    
         if ($request->filled('ucx_serial_number')) {
             $query->where('product_serial_parent_child.parent_slno', 'like', "%" . $request->ucx_serial_number . "%");
         }
-    
         if ($request->filled('status')) {
             $status = $request->status === "Registered" ? "Activated" : $request->status;
             $query->where('product_serial.status', $status);
         }
-        
     
         // Count after filters
         $totalFiltered = $query->count();
@@ -100,6 +92,10 @@ class ProvisioningInfinity5xxxController extends Controller
         // -------------------------
         $data = [];
         foreach ($records as $row) {
+            $assignedParent = DB::table('product_serial_child')
+                ->where('slno', $row->slno)
+                ->value('assigned_to_parent');
+    
             $nested = [];
             $nested['checkbox'] = "<input type='checkbox' value='{$row->slno}'>";
             $nested['slno'] = $row->slno;
@@ -111,6 +107,9 @@ class ProvisioningInfinity5xxxController extends Controller
             $nested['mac_address_0'] = $row->mac_address_0;
             $nested['updated'] = $row->updated ? date("m/d/Y", $row->updated) : null;
     
+            // ✅ Show parent SLNO if exists
+            $nested['parent_slno'] = $assignedParent ?? null;
+    
             $data[] = $nested;
         }
     
@@ -121,5 +120,6 @@ class ProvisioningInfinity5xxxController extends Controller
             "data"            => $data
         ]);
     }
+    
     
 }
