@@ -159,11 +159,11 @@
                                             <input class="form-check-input m-0 align-middle all-select" type="checkbox"
                                                 aria-label="Select all">
                                         </th>
-                                        <th>Serial Number</th>
+                                        <th>Phone SN</th>
                                         <th>MAC Address</th>
                                         <th>Phone Type</th>
                                         <th>UCX SN</th>
-                                        <th>Reseller</th>
+                                        <th>Organization</th>
                                         <th>Status</th>
                                         <th>Site Name</th>
                                         <th>Last modified Date</th>
@@ -284,222 +284,269 @@
                         <div id="updateCardContent" class="collapse">
                             <form id="comprehensiveUpdateForm">
                                 <div class="card-body">
-                                    <div class="alert alert-info">
-                                        <strong>Selected Serial Numbers:</strong>
-                                        <span id="selectedSerialNumbersList">No records selected</span>
-                                    </div>
+                                   
 
-                                    <ul class="nav nav-tabs card-header-tabs nav-fill mb-4" data-bs-toggle="tabs" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <a href="#tabs-profile" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">Profile</a>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <a href="#tabs-network" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Network</a>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <a href="#tabs-services" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Services</a>
-                                        </li>
-                                        <li class="nav-item" role="presentation">
-                                            <a href="#tabs-updates" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1">Updates</a>
-                                        </li>
-                                    </ul>
+                                <ul class="nav nav-tabs card-header-tabs nav-fill mb-4" data-bs-toggle="tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tabs-profile" class="nav-link active" data-bs-toggle="tab"
+                                        aria-selected="true" role="tab">Profile</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tabs-network" class="nav-link" data-bs-toggle="tab" aria-selected="false"
+                                        role="tab">Network</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tabs-updates" class="nav-link" data-bs-toggle="tab" aria-selected="false"
+                                        role="tab">Updates</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#tabs-custom" class="nav-link" data-bs-toggle="tab" aria-selected="false"
+                                        role="tab">Custom</a>
+                                </li>
+                            </ul>
 
-                                    <div class="tab-content">
-                                        <!-- Profile Tab -->
-                                        <div class="tab-pane active show" id="tabs-profile" role="tabpanel">
-                                            <h2 class="text-lime">System Details</h2>
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">UCX Serial Number</label>
-                                                    <input type="text" name="parent_slno" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">MAC Address</label>
-                                                    <input type="text" name="mac_address_0" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Phone Type</label>
-                                                    <input type="text" name="product_code" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Reseller</label>
-                                                    <input type="text" name="re_seller" class="form-control">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Hostname/IP 1</label>
-                                                    <input type="text" name="s1_ip" class="form-control">
-                                                </div>
-                                                <div class="col-md-2 col-sm-12 mb-3">
-                                                    <label class="form-label">S1 Port</label>
-                                                    <input type="number" step="1" min="0" name="s1_port" value="7000" class="form-control">
-                                                </div>
-                                                <div class="col-md-2 col-sm-12 mb-3">
-                                                    <label class="form-label">S1 Retries</label>
-                                                    <input type="number" step="1" min="0" name="s1_retry_number" value="1" class="form-control">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Hostname/IP 2</label>
-                                                    <input type="text" name="s2_ip" class="form-control">
-                                                </div>
-                                                <div class="col-md-2 col-sm-12 mb-3">
-                                                    <label class="form-label">S2 Port</label>
-                                                    <input type="number" step="1" min="0" name="s2_port" value="7000" class="form-control">
-                                                </div>
-                                                <div class="col-md-2 col-sm-12 mb-3">
-                                                    <label class="form-label">S2 Retries</label>
-                                                    <input type="number" step="1" min="0" name="s2_retry_number" value="1" class="form-control">
-                                                </div>
-                                            </div>
-                                            
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Site Name</label>
-                                                    <input type="text" name="site_name" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Installed By</label>
-                                                    <input type="text" name="installed_by" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Status</label>
-                                                    <select name="status" class="form-control form-select">
-                                                        <option value="">Select Status</option>
-                                                        <option value="Sold To">Sold</option>
-                                                        <option value="Assigned">Assigned</option>
-                                                        <option value="Registered">Registered</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Allow Multiple Profile</label>
-                                                    <div>
-                                                        <label class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="allow_multiple_profile" value="1">
-                                                            <span class="form-check-label">Yes</span>
-                                                        </label>
-                                                        <label class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="allow_multiple_profile" value="0" checked>
-                                                            <span class="form-check-label">No</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Allow Changes to Default Profile</label>
-                                                    <div>
-                                                        <label class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="allow_changes_to_default_profile" value="1">
-                                                            <span class="form-check-label">Yes</span>
-                                                        </label>
-                                                        <label class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="radio" name="allow_changes_to_default_profile" value="0" checked>
-                                                            <span class="form-check-label">No</span>
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Infinity One URL</label>
-                                                    <input name="infinityone_url" type="text" class="form-control">
-                                                </div>
-                                            </div>
+                            <div class="tab-content">
+                                <!-- Profile Tab -->
+                                <div class="tab-pane active show" id="tabs-profile" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">UCX Serial Number</label>
+                                            <input type="text" name="parent_slno" class="form-control">
                                         </div>
 
-                                        <!-- Network Tab -->
-                                        <div class="tab-pane" id="tabs-network" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-12 mb-3">
-                                                    <h2 class="text-lime">Network Settings</h2>
-                                                </div>
-                                                
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">VLAN ID</label>
-                                                    <input type="text" name="vlan_id" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">VLAN Priority</label>
-                                                    <input type="text" name="vlan_priority" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Wifi</label>
-                                                    <select name="wifi" class="form-control form-select">
-                                                        <option value="">(Select)</option>
-                                                        <option value="ON">ON</option>
-                                                        <option value="OFF">OFF</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Bluetooth</label>
-                                                    <select name="bluetooth" class="form-control form-select">
-                                                        <option value="">(Select)</option>
-                                                        <option value="ON">ON</option>
-                                                        <option value="OFF">OFF</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Services Tab -->
-                                        <div class="tab-pane" id="tabs-services" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-12 mb-3">
-                                                    <h2 class="text-lime">SMS Settings</h2>
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">SMS 1</label>
-                                                    <input type="text" name="sms_did1" class="form-control">
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">SMS 2</label>
-                                                    <input type="text" name="sms_did2" class="form-control">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Updates Tab -->
-                                        <div class="tab-pane" id="tabs-updates" role="tabpanel">
-                                            <div class="row">
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">FW Update Frequency</label>
-                                                    <select name="swupdate_frequency" class="form-control form-select">
-                                                        <option value="">(Select)</option>
-                                                        <option value="Daily">Daily</option>
-                                                        <option value="Weekly">Weekly</option>
-                                                        <option value="Monthly" selected>Monthly</option>
-                                                        <option value="Off">Off</option>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">Start Hour</label>
-                                                    <select name="swupdate_start_hr" class="form-control form-select">
-                                                        <option value="">(Select)</option>
-                                                        <?php for ($i = 0; $i < 24; $i++): ?>
-                                                            <option value="<?= sprintf('%02d', $i) ?>" <?= $i == 3 ? 'selected' : '' ?>>
-                                                                <?= sprintf('%02d', $i) ?>
-                                                            </option>
-                                                        <?php endfor; ?>
-                                                    </select>
-                                                </div>
-                                                <div class="col-md-3 col-sm-12 mb-3">
-                                                    <label class="form-label">End Hour</label>
-                                                    <select name="swupdate_end_hr" class="form-control form-select">
-                                                        <option value="">(Select)</option>
-                                                        <?php for ($i = 0; $i < 24; $i++): ?>
-                                                            <option value="<?= sprintf('%02d', $i) ?>" <?= $i == 4 ? 'selected' : '' ?>>
-                                                                <?= sprintf('%02d', $i) ?>
-                                                            </option>
-                                                        <?php endfor; ?>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Status</label>
+                                            <input type="text" readonly name="status" class="form-control">
                                         </div>
                                     </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Hostname/IP 1</label>
+                                            <input type="text" name="s1_ip" class="form-control"
+                                                >
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">S1 Port</label>
+                                            <input type="number" step="1" min="0" name="s1_port" class="form-control"
+                                              >
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">S1 Retries</label>
+                                            <input type="number" step="1" min="0" name="s1_retry_number"
+                                                class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Hostname/IP 2</label>
+                                            <input type="text" name="s2_ip" class="form-control"
+                                                >
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">S2 Port</label>
+                                            <input type="number" step="1" min="0" name="s2_port" class="form-control"
+                                                >
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">S2 Retries</label>
+                                            <input type="number" step="1" min="0" name="s2_retry_number"
+                                                class="form-control">
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Site Name</label>
+                                            <input type="text" name="site_name" class="form-control">
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Installed By</label>
+                                            <input type="text" name="installed_by" class="form-control">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <!-- Network Tab -->
+                                <div class="tab-pane" id="tabs-network" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">DHCP VLAN</label>
+                                            <select name="dhcp_vlan" id="dhcp_vlan" class="form-control">
+                                                <option selected>(Select)</option>
+                                                <option value="enable">Enable</option>
+                                                <option value="disable">Disable</option>
+                                            </select>
+                                        </div>
+                                        <h3 class="text-lime">VLAN WAN Port</h3>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Active</label>
+                                            <select name="vlan_wan_port" id="vlan_wan_port" class="form-control">
+                                                <option selected>(Select)</option>
+                                                <option value="enable">Enable</option>
+                                                <option value="disable">Disable</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">VID</label>
+                                            <input type="text" name="vlan_id" class="form-control">
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Priority</label>
+                                            <input type="text" name="vlan_priority" class="form-control">
+                                        </div>
+                                        <h3 class="text-lime">VLAN PC Port</h3>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Active</label>
+                                            <select name="vlan_wan_port" id="vlan_wan_port" class="form-control">
+                                                <option selected>(Select)</option>
+                                                <option value="enable">Enable</option>
+                                                <option value="disable">Disable</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">VID</label>
+                                            <input type="text" name="vlan_id" class="form-control">
+                                        </div>
+                                        <h3 class="text-lime">WIFI</h3>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Active</label>
+                                            <select name="wifi_active" id="wifi_active" class="form-control">
+                                                <option selected>(Select)</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Mode</label>
+                                            <select name="wifi_active" id="wifi_active" class="form-control">
+                                                <option selected>(Select)</option>
+                                                <option value="manual">Manual</option>
+                                                <option value="provision">Provision</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">SSID</label>
+                                            <input type="text" name="wifi_ssid" class="form-control">
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Security Mode</label>
+                                            <select name="wifi" class="form-control form-select">
+                                                <option value="">(Select)</option>
+                                                <option value="none">None</option>
+                                                <option value="WEP mode">WEP mode</option>
+                                                <option value="WEP PSK mode">WEP PSK mode</option>
+                                                <option value="WEP mode">WEP mode</option>
+                                                <option value="WPA2 PSK mode">WPA2 PSK mode</option>
+
+                                            </select>
+                                        </div>
+                                        <div class="col-md-2 col-sm-12 mb-3">
+                                            <label class="form-label">Password</label>
+                                            <input type="text" name="wifi_password" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Services Tab -->
+                                <div class="tab-pane" id="tabs-updates" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Firmware Upgrade Mode</label>
+                                            <select name="firmware_upgrade_mode" class="form-control form-select">
+                                                <option value="">(Select)</option>
+                                                <option value="TFTP">TFTP</option>
+                                                <option value="HTTP">HTTP</option>
+                                                <option value="FTP">FTP</option>
+                                                <option value="HTTPS">HTTPS</option>
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label mb-0">Firmware Server Path</label>
+                                            <span>repo.uc-x.org/infinity.fw</span>
+                                            <input type="text" name="firmwire_server_path" class="form-control">
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label mb-0">Configuration Server Path</label>
+                                            <span>repo.uc-x.org/infinity.cfg</span>
+                                            <input type="text" name="configuration_server_path" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Auto Firmware Upgrade</label>
+                                            <select name="auto_firmware_upgrade" class="form-control form-select">
+                                                <option value="">(Select)</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Upgrade EXP Firmware</label>
+                                            <select name="auto_firmware_upgrade" class="form-control form-select">
+                                                <option value="">(Select)</option>
+                                                <option value="yes">Yes</option>
+                                                <option value="no">No</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Check for upgrade every(minutes)</label>
+                                            <input type="text" name="check_for_upgrades" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label mb-0">Screen Saver Server URL</label>
+                                            <span>(e.g. tftp://192.168.1.200/image.jpg)</span>
+                                            <input type="text" name="screen_saver_server_url" class="form-control">
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label mb-0">Wallpaper Server URL</label>
+                                            <span>(e.g. tftp://192.168.1.200/wallpaper.jpg)</span>
+                                            <input type="text" name="wallpaper_server_url" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Admin Password</label>
+                                            <input type="password" name="admin_password" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Updates Tab -->
+                                <div class="tab-pane" id="tabs-custom" role="tabpanel">
+                                    <div id="parameters-wrapper">
+                                        <div class="row parameter-row">
+                                            <div class="col-md-3 col-sm-12 mb-3">
+                                                <label class="form-label">PCODE</label>
+                                                <input type="text" name="pcode[]" class="form-control">
+                                            </div>
+                                            <div class="col-md-3 col-sm-12 mb-3">
+                                                <label class="form-label">Value</label>
+                                                <div class="input-group">
+                                                    <input type="text" name="pcode_value[]" class="form-control">
+                                                    <button type="button" class="btn btn-danger remove-row">
+                                                        <i class="ti ti-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Add Button -->
+                                    <div class="mb-3">
+                                        <button type="button" id="add-parameter" class="btn btn-primary">
+                                            +Add Parameter
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                                     
                                     <div class="row mt-4">
                                         <div class="col-12">
@@ -822,79 +869,41 @@ function hideLoader() {
                 });
             });
 
-            // Single record delete
-            $(document).on('click', '.delete-btn', function() {
-                const id = $(this).data('id');
-                const url = "{{ route('provisioning.infinity5xxx.delete', ['id' => ':id']) }}".replace(':id', id);
+           
+        });
+    </script>
+        <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const wrapper = document.getElementById("parameters-wrapper");
+            const addBtn = document.getElementById("add-parameter");
 
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: "You won't be able to revert this!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: url,
-                            type: "DELETE",
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                  hideLoader(); // Hide loader on success
-                                Swal.fire('Deleted!', response.success, 'success');
-                                table.ajax.reload();
-                            },
-                            error: function(xhr) {
-                                Swal.fire('Error', xhr.responseJSON?.error || 'Delete failed', 'error');
-                            }
-                        });
-                    }
-                });
+            // Add new row
+            addBtn.addEventListener("click", function () {
+                const row = document.createElement("div");
+                row.classList.add("row", "parameter-row");
+                row.innerHTML = `
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <label class="form-label">PCODE</label>
+                    <input type="text" name="pcode[]" class="form-control">
+                </div>
+                <div class="col-md-3 col-sm-12 mb-3">
+                    <label class="form-label">Value</label>
+                    <div class="input-group">
+                        <input type="text" name="pcode_value[]" class="form-control">
+                        <button type="button" class="btn btn-danger remove-row">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+                wrapper.appendChild(row);
             });
 
-            // Bulk delete functionality
-            $('#deleteSelectedBtn').on('click', function() {
-                if (selectedRows.length === 0) {
-                    Swal.fire('Warning', 'Please select at least one record to delete', 'warning');
-                    return;
+            // Delete row (event delegation)
+            wrapper.addEventListener("click", function (e) {
+                if (e.target.closest(".remove-row")) {
+                    e.target.closest(".parameter-row").remove();
                 }
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: `You are about to delete ${selectedRows.length} record(s)`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#d33',
-                    cancelButtonColor: '#3085d6',
-                    confirmButtonText: 'Yes, delete them!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.ajax({
-                            url: "{{ route('provisioning.infinity5xxx.delete.multiple') }}",
-                            type: "DELETE",
-                            data: {
-                                ids: selectedRows
-                            },
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success: function(response) {
-                                Swal.fire('Deleted!', response.message, 'success');
-                                table.ajax.reload();
-                                selectedRows = [];
-                                updateSelectedDisplay();
-                                toggleUpdateSection();
-                            },
-                            error: function(xhr) {
-                                Swal.fire('Error', xhr.responseJSON?.error || 'Delete failed', 'error');
-                            }
-                        });
-                    }
-                });
             });
         });
     </script>

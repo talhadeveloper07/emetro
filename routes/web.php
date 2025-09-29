@@ -18,6 +18,7 @@ use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProvisioningInfinity3065Controller;
 use App\Http\Controllers\ProvisioningInfinity5xxxController;
 use App\Models\ProvisioningInfinity3065;
+use App\Http\Controllers\VariableController;
 
 
 Route::get('test', function () {
@@ -231,6 +232,16 @@ Route::middleware(['auth','2fa'])->group(function () {
     Route::put('/infinity5xxx/update-multiple', [ProvisioningInfinity5xxxController::class, 'updateMultipleRecords'])->name('infinity5xxx.update.multiple');
     Route::delete('/infinity5xxx/delete-multiple', [ProvisioningInfinity5xxxController::class, 'deleteMultiple'])->name('infinity5xxx.delete.multiple');
     Route::get('/', [ProvisioningController::class, 'index'])->name('index');
+
+    Route::get('/provisioning/infinity5xxx/child/{id}', [ProvisioningInfinity5xxxController::class, 'show_details'])
+    ->name('infinity5xxx.show');
+
+    Route::get('provisioning/infinity5xxx/download/{slno}', [ProvisioningInfinity5xxxController::class, 'download'])
+     ->name('infinity5xxx.download');
+
+
+
+
     Route::get('/infinity7xxx', [ProvisioningController::class, 'infinity7'])->name('infinity7');
     Route::get('/infinity7xxx/details/{slno}', [ProvisioningController::class, 'infinity7_details'])->name('infinity7_details');
 
@@ -279,4 +290,8 @@ Route::get('/provisioning/download-xml/{slno}', [ProvisioningInfinity3065Control
     Route::get('/states/{countryCode}', [LocationController::class, 'getStates'])->name('getStates');
     Route::get('/currencies/{countryCode}', [LocationController::class, 'getCurrencies'])->name('getCurrencies');
     Route::get('/cities/{countryCode}/{stateCode}', [LocationController::class, 'getCities'])->name('getCities');
+
+    Route::get('/variables/create', [VariableController::class, 'create'])->name('variables.create');
+    Route::post('/variables', [VariableController::class, 'store'])->name('variables.store');
+
 });
