@@ -29,7 +29,7 @@
                     <div class="card-body">
                         <h5 class="card-title">Phone Details</h5>
                         <div class="d-flex gap-3 flex-wrap">
-                            <span class="card-text"><strong>SN:</strong> {{ $record->slno ?? 'N/A' }}</span> |
+                            <span class="card-text"><strong>SN:</strong> {{ $record->product_slno ?? 'N/A' }}</span> |
                             <span class="card-text"><strong>MAC:</strong> {{ $record->mac_address_0 ?? 'N/A' }}</span> |
                             <span class="card-text">{{ $record->product_code ?? 'N/A' }}</span> |
                             <span class="card-text"><strong>UCX SN:</strong> {{ $record->ucx_sn ?? 'N/A' }}</span> |
@@ -73,7 +73,7 @@
                                             <label class="form-label">UCX Serial Number</label>
                                             <input type="text" name="parent_slno" class="form-control"
                                                 value="{{ $record->ucx_sn ?? '' }}" readonly>
-                                            <input type="hidden" name="slno" id="slno" value="{{ $record->slno }}">
+                                            <input type="hidden" name="slno" id="slno" value="{{ $record->product_slno }}">
                                         </div>
                                         <div class="col-md-3 col-sm-12 mb-3">
                                             <label class="form-label">Status</label>
@@ -327,10 +327,10 @@
                                 </button>
                             </div>
                             <div class="col-md-6 text-end">
-                                <a href="{{ route('provisioning.infinity5xxx.download', $record->slno) }}" 
-                                    class="btn btn-primary">
-                                    Download XML
-                                </a>
+                            <a href="{{ route('provisioning.infinity5xxx.download', ['slno' => $record->product_slno ?? 'test']) }}" 
+   class="btn btn-primary">
+   Download XML
+</a>
 
                             </div>
                         </div>

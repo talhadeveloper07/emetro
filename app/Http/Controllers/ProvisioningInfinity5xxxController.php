@@ -170,9 +170,11 @@ class ProvisioningInfinity5xxxController extends Controller
             ->leftJoin('infinity_list', 'infinity_list.slno', '=', 'product_serial.slno')
             ->where('product_serial.slno', $id)
             ->select(
+                'product_serial.slno as product_slno',
                 'product_serial.*',
                 'product_serial_parent_child.site_name',
                 'product_serial_parent_child.installed_by',
+                'infinity_list.slno as infinity_slno',
                 'infinity_list.*'
             )
             ->first();
@@ -185,6 +187,7 @@ class ProvisioningInfinity5xxxController extends Controller
         $record->ucx_sn = DB::table('product_serial_child')
             ->where('slno', $id)
             ->value('assigned_to_parent');
+
     
         return view('provisioning.infinity5xxx.details', compact('record'));
     }
@@ -196,52 +199,80 @@ class ProvisioningInfinity5xxxController extends Controller
     }
 
     public function updateMultipleRecords(Request $request)
-    {
-        try {
-            $ids = $request->input('selected_rows', []);
-            $data = $request->except(['_token', 'selected_rows']);
+{
+    try {
+        $ids = $request->input('selected_rows', []);
+        $data = $request->except(['_token', 'selected_rows']);
 
-            if (empty($ids)) {
-                return response()->json(['error' => 'No records selected'], 400);
-            }
-
-            $count = 0;
-            $errors = [];
-
-            foreach ($ids as $id) {
-                try {
-                    // FIXED: Create proper request data
-                    $requestData = new Request();
-                    $requestData->replace($data); // Set the data properly
-
-                    $result = $this->updateInfinityRecord($requestData, $id, false);
-                    if ($result['success']) {
-                        $count++;
-                    }
-                } catch (\Exception $e) {
-                    $errors[] = "Failed to update record {$id}: " . $e->getMessage();
-                    \Log::error("Failed to update record {$id}: " . $e->getMessage());
-                }
-            }
-
-            // Update timestamp for all affected records
-            if ($count > 0) {
-                DB::table('product_serial')->whereIn('slno', $ids)->update(['updated' => time()]);
-            }
-
-            $message = "{$count} phones updated successfully";
-            if (!empty($errors)) {
-                $message .= ". Errors: " . implode(', ', array_slice($errors, null)); // Show first 3 errors only
-            }
-
-            \Log::info('Bulk update completed: ' . $message);
-            return response()->json(['success' => $message]);
-
-        } catch (\Exception $e) {
-            \Log::error('Bulk update failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Update failed: ' . $e->getMessage()], 500);
+        if (empty($ids)) {
+            return response()->json(['error' => 'No records selected'], 400);
         }
+
+        $count = 0;
+        $errors = [];
+
+        foreach ($ids as $id) {
+            try {
+                // Prepare request data for update
+                $requestData = new Request();
+                $requestData->replace($data);
+
+                $result = $this->updateInfinityRecord($requestData, $id, false);
+
+                if ($result['success']) {
+                    $count++;
+
+                    // 🔹 Fetch latest record after update
+                    $record = DB::table('product_serial')
+                        ->leftJoin('product_serial_parent_child', 'product_serial.slno', '=', 'product_serial_parent_child.slno')
+                        ->leftJoin('infinity_list', 'infinity_list.slno', '=', 'product_serial.slno')
+                        ->where('product_serial.slno', $id)
+                        ->select(
+                            'product_serial.*',
+                            'product_serial_parent_child.site_name',
+                            'product_serial_parent_child.installed_by',
+                            'infinity_list.*'
+                        )
+                        ->first();
+
+                    if ($record) {
+                        // 🔹 Build XML
+                        $xml = new \SimpleXMLElement('<provisioning/>');
+
+                        foreach ((array) $record as $key => $value) {
+                            $xml->addChild($key, htmlspecialchars($value ?? ''));
+                        }
+
+                        // 🔹 Save XML file to storage/app/private/infinity5xxx/xml/
+                        $filePath = "private/infinity5xxx/xml/{$id}.xml";
+                        Storage::disk('local')->put($filePath, $xml->asXML());
+                    }
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Failed to update record {$id}: " . $e->getMessage();
+                \Log::error("Failed to update record {$id}: " . $e->getMessage());
+            }
+        }
+
+        // Update timestamp for all affected records
+        if ($count > 0) {
+            DB::table('product_serial')->whereIn('slno', $ids)->update(['updated' => time()]);
+        }
+
+        $message = "{$count} phones updated successfully";
+        if (!empty($errors)) {
+            $message .= ". Errors: " . implode(', ', array_slice($errors, 0, 3)); // Show first 3 errors only
+        }
+
+        \Log::info('Bulk update completed: ' . $message);
+        return response()->json(['success' => $message]);
+
+    } catch (\Exception $e) {
+        \Log::error('Bulk update failed: ' . $e->getMessage());
+        return response()->json(['error' => 'Update failed: ' . $e->getMessage()], 500);
     }
+}
+
 
     // MISSING METHOD - ADD THIS
     private function updateInfinityRecord(Request $request, $id, $updateTimestamp = true)
@@ -284,7 +315,6 @@ class ProvisioningInfinity5xxxController extends Controller
             $parentChildData = [
                 'site_name' => $data['site_name'] ?? null,
                 'installed_by' => $data['installed_by'] ?? null,
-                'parent_slno' => $data['parent_slno'] ?? null,
                 's1_ip' => $data['s1_ip'] ?? null,
                 's2_ip' => $data['s2_ip'] ?? null,
             ];
