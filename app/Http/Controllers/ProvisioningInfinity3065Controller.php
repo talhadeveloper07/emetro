@@ -21,10 +21,10 @@ class ProvisioningInfinity3065Controller extends Controller
     public function getData(Request $request)
     {
         $query = ProvisioningInfinity3065::query();
-
+    
         // Total records before filtering
         $totalRecords = ProvisioningInfinity3065::count();
-
+    
         // Filters
         if ($request->filled('org_id')) {
             $query->where('org_id', $request->org_id);
@@ -35,8 +35,8 @@ class ProvisioningInfinity3065Controller extends Controller
         if ($request->filled('phone_serial_number')) {
             $query->where('slno', 'like', "%{$request->phone_serial_number}%");
         }
-        if ($request->filled('mac_address')) {
-            $query->where('mac_address', 'like', "%{$request->mac_address}%");
+        if ($request->filled('device_id')) {
+            $query->where('device_id', 'like', "%{$request->device_id}%");
         }
         if ($request->filled('s1_ip')) {
             $query->where('s1_ip', 'like', "%{$request->s1_ip}%");
@@ -50,15 +50,16 @@ class ProvisioningInfinity3065Controller extends Controller
         if ($request->filled('status')) {
             $query->where('device_current_status', $request->status);
         }
-
+    
         // Filtered count
         $filteredRecords = $query->count();
-
+    
         // Sorting
         $columns = [
             'checkbox',
             'device_id',
             'first_name',
+            'last_name',
             'slno',
             'device_type',
             's1_info',
@@ -78,31 +79,38 @@ class ProvisioningInfinity3065Controller extends Controller
         } else {
             $query->orderBy('updated_at', 'desc');
         }
-
+    
         // Pagination
         $limit = $request->length ?? 10;
         $offset = $request->start ?? 0;
-        
-        $records = $query->skip($offset)
-                         ->take($limit)
-                         ->get();
-
+    
+        // ✅ Join organizations to get organization name for reseller_id
+        $table = (new ProvisioningInfinity3065)->getTable();
+    
+        $records = $query
+            ->leftJoin('organizations', 'organizations.id', '=', $table.'.reseller_id')
+            ->select($table.'.*', 'organizations.name as organization_name')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
+    
+        // Map data
         $data = $records->map(function ($row) {
             return [
                 'checkbox' => '<input type="checkbox" class="single-select" value="'.$row->slno.'">',
                 'device_id' => $row->device_id,
-                'first_name' => $row->first_name,
+                'full_name' => $row->first_name .' '.$row->last_name,
                 'serial_number' => '<a href="'.route('provisioning.infinity3065.show', $row->slno).'">'.$row->slno.'</a>',
-                'device_type' => $row->device_type ?? '#',
+                'device_type' => $row->device_type ?? '',
                 's1_info' => ($row->s1_ip ?? '').':'.($row->s1_port ?? ''),
-                'reseller_id' => $row->reseller_id,
+                'reseller_id' => $row->organization_name ?? '',
                 'device_current_status' => $row->device_current_status,
                 'updated' => $row->updated_at ? $row->updated_at->format('Y-m-d H:i:s') : '',
                 'actions' => '<button type="button" class="btn btn-sm btn-primary editBtn" data-id="'.$row->slno.'">Edit</button>
                               <button type="button" class="btn btn-sm btn-danger deleteBtn" data-id="'.$row->slno.'">Delete</button>'
             ];
         });
-
+    
         return response()->json([
             'draw' => intval($request->draw),
             'recordsTotal' => $totalRecords,
@@ -110,6 +118,7 @@ class ProvisioningInfinity3065Controller extends Controller
             'data' => $data,
         ]);
     }
+    
 
  public function store(Request $request)
 {

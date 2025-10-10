@@ -19,6 +19,7 @@ use App\Http\Controllers\ProvisioningInfinity3065Controller;
 use App\Http\Controllers\ProvisioningInfinity5xxxController;
 use App\Models\ProvisioningInfinity3065;
 use App\Http\Controllers\VariableController;
+use App\Http\Controllers\DectProvisioningController;
 
 
 Route::get('test', function () {
@@ -256,6 +257,20 @@ Route::middleware(['auth','2fa'])->group(function () {
     Route::post('/infinity3065/bulk-delete', [ProvisioningInfinity3065Controller::class, 'bulkDelete'])->name('infinity3065.bulkDelete');
     Route::get('/infinity3065/export', [ProvisioningInfinity3065Controller::class, 'export'])->name('infinity3065.export');
     Route::get('/get-serials', [ProvisioningInfinity3065Controller::class, 'getSerials'])->name('serials.get');
+
+    // Dect Provisioning
+
+    Route::get('/dect',[DectProvisioningController::class,'index'])->name('dect');
+    Route::post('/dect/store', [DectProvisioningController::class, 'store'])->name('dect.store');
+    Route::post('/dect/bulk-delete', [DectProvisioningController::class, 'bulkDelete'])->name('dect.bulkDelete');
+    Route::get('/dect/dect-details/{id}', [DectProvisioningController::class, 'dect_details'])->name('dect.details');
+    Route::post('/dect/update/{id}', [DectProvisioningController::class, 'update'])->name('dect.update');
+    Route::post('/dect/update-extension-index', [DectProvisioningController::class, 'updateDectExtensionIndex'])
+    ->name('dect.updateExtensionIndex');
+    Route::post('/dect/delete-extensions', [DectProvisioningController::class, 'deleteExtensions'])
+    ->name('dect.deleteExtensions');
+
+
 
 
     // ✅ Live XML Route

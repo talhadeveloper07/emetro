@@ -69,17 +69,25 @@
                                 <!-- Profile Tab -->
                                 <div class="tab-pane active show" id="tabs-profile" role="tabpanel">
                                     <div class="row">
-                                        <div class="col-md-3 col-sm-12 mb-3">
+                                        <!-- <div class="col-md-3 col-sm-12 mb-3">
                                             <label class="form-label">UCX Serial Number</label>
                                             <input type="text" name="parent_slno" class="form-control"
                                                 value="{{ $record->ucx_sn ?? '' }}" readonly>
                                             <input type="hidden" name="slno" id="slno" value="{{ $record->product_slno }}">
-                                        </div>
+                                        </div> -->
                                         <div class="col-md-3 col-sm-12 mb-3">
                                             <label class="form-label">Status</label>
                                             <input type="text"
                                                 value="{{ $record->status === 'Activated' ? 'Registered' : $record->status }}"
                                                 readonly name="status" class="form-control">
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Activation Date</label>
+                                            <input type="text" name='activation_date' readonly value="{{ $record->activation_date }}" class="form-control">
+                                        </div>
+                                        <div class="col-md-3 col-sm-12 mb-3">
+                                            <label class="form-label">Expiry Date</label>
+                                            <input type="text"name='expiry_date' readonly value="{{ $record->expiry_date }}" class="form-control">
                                         </div>
                                     </div>
 
