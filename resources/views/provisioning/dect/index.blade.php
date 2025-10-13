@@ -166,7 +166,7 @@
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <button class="btn btn-primary">Push Configuration To Public Server</button>
+                    <button id="pushSelected" class="btn btn-primary">Push Configuration To Public Server</button>
                 </div>
                 <div class="col-md-6 text-end">
                     <button class="btn btn-danger" id="deleteSelectedBtn">Delete</button>
@@ -414,6 +414,61 @@ $(document).ready(function() {
 
 
         });
+    </script>
+
+    <script>
+        $('#pushSelected').on('click', function() {
+    // Collect all checked IDs
+    let selectedIds = [];
+    $('.single-select:checked').each(function() {
+        selectedIds.push($(this).val());
+    });
+
+    if (selectedIds.length === 0) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'No Records Selected',
+            text: 'Please select at least one DECT record to push configuration.'
+        });
+        return;
+    }
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "This will generate and save config files for selected DECT devices.",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Yes, Push!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "{{ route('provisioning.dect.pushMultiple') }}",
+                type: 'POST',
+                data: {
+                    ids: selectedIds,
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(response) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Pushed Successfully',
+                        text: response.message
+                    });
+                    $('#dect_table').DataTable().ajax.reload();
+                },
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Push Failed',
+                        text: xhr.responseJSON?.message || 'An error occurred.'
+                    });
+                }
+            });
+        }
+    });
+});
+
     </script>
     @endsection
 @endsection
