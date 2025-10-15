@@ -133,6 +133,39 @@
                                                         <input type="text" name="s2_ip_address" class="form-control"
                                                             value="{{ $dectData->primary_mac }}">
                                                     </div>
+                                                    @php
+                                                        // Get codec options from config
+                                                        $codecRowOptions = config('codec.codecRowOptions');
+
+                                                        // Decode saved codec priority from DB (ensure array)
+                                                        $selectedCodecs = json_decode($dectData->codec_priority ?? '[]', true) ?? [];
+
+                                                        // If some codecs are not yet selected, append them at the end
+                                                        foreach ($codecRowOptions as $code => $label) {
+                                                            if (!in_array($code, $selectedCodecs)) {
+                                                                $selectedCodecs[] = $code;
+                                                            }
+                                                        }
+                                                    @endphp
+
+                                                    <div class="col-md-3 col-sm-12 mb-3">
+                                                        <label class="form-label">Codec Priority</label>
+
+                                                        <div class="d-flex align-items-center">
+                                                            <select id="codec_priority" name="codec_priority[]" multiple class="form-control" size="6" style="width: 200px;">
+                                                                @foreach($selectedCodecs as $code)
+                                                                    <option value="{{ $code }}">{{ $codecRowOptions[$code] ?? $code }}</option>
+                                                                @endforeach
+                                                            </select>
+
+                                                            <div class="d-flex flex-column ms-2">
+                                                                <button type="button" id="moveUp" class="btn btn-sm btn-secondary mb-1">⬆️</button>
+                                                                <button type="button" id="moveDown" class="btn btn-sm btn-secondary">⬇️</button>
+                                                            </div>
+                                                        </div>
+
+                                                        <small class="text-muted">Use the up and down arrows to reorder the list</small>
+                                                    </div>
                                                 </div>
                                                 <button type="submit" class="btn btn-primary">Save</button>
                                             </form>
@@ -141,9 +174,17 @@
                                         <!-- Network Tab -->
                                         <div class="tab-pane" id="tabs-extensions" role="tabpanel">
                                             <div class="row">
-                                                <div class="col-md-2 col-sm-12 mb-3">
-                                                    <label class="form-label">Select CSV file for upload</label>
-                                                    <input type="file" style="border:1px solid lightgray;padding:10px;">
+                                                <div class="col-md-4 col-sm-12 mb-3">
+                                                    <form action="{{ route('provisioning.extensions.import') }}" method="POST" enctype="multipart/form-data">
+                                                        @csrf
+
+                                                        <div class="mb-3">
+                                                            <label>Import DECT Extensions CSV</label>
+                                                            <input type="file" name="csv_file" class="form-control" accept=".csv" required>
+                                                        </div>
+
+                                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                                    </form>
                                                 </div>
                                             </div>
                                             <div class="row mt-4 align-items-end">
@@ -396,6 +437,47 @@ $(document).ready(function() {
         });
     });
 });
+</script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const select = document.getElementById('codec_priority');
+        const moveUp = document.getElementById('moveUp');
+        const moveDown = document.getElementById('moveDown');
+
+        // Move selected option up
+        moveUp.addEventListener('click', function() {
+            for (let i = 1; i < select.options.length; i++) {
+                const option = select.options[i];
+                if (option.selected && !select.options[i - 1].selected) {
+                    select.insertBefore(option, select.options[i - 1]);
+                }
+            }
+        });
+
+        // Move selected option down
+        moveDown.addEventListener('click', function() {
+            for (let i = select.options.length - 2; i >= 0; i--) {
+                const option = select.options[i];
+                if (option.selected && !select.options[i + 1].selected) {
+                    select.insertBefore(select.options[i + 1], option);
+                }
+            }
+        });
+
+        // Before submitting form, serialize order into hidden input
+        const form = select.closest('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const values = Array.from(select.options).map(opt => opt.value);
+                const hidden = document.createElement('input');
+                hidden.type = 'hidden';
+                hidden.name = 'codec_priority_order';
+                hidden.value = JSON.stringify(values);
+                form.appendChild(hidden);
+            });
+        }
+    });
 </script>
 
 

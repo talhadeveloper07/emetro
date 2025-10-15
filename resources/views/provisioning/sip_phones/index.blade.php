@@ -41,7 +41,7 @@
                                 class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M15 6l-6 6l6 6" />
-                            </svg></a> Dect Provisioning
+                            </svg></a> SIP Phones
                     </h2>
                 </div>
                 <!-- Page title actions -->
@@ -89,25 +89,26 @@
                                         <div class="mb-3">
                                             <label class="form-label">Organization</label>
                                             <select name="reseller" class="form-control select2">
-                                <option value="">All</option>
-                                @foreach($organizations as $org)
-                                    <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
-                                        {{ $org->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                                                <option value="">All</option>
+                                                @foreach($organizations as $org)
+                                                    <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
+                                                        {{ $org->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-md-2">
                                         <div class="mb-3">
-                                            <label class="form-label">UCX Serial Number</label>
-                                            <input type="text" name="ucx_sn" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6 col-md-2">
-                                        <div class="mb-3">
-                                            <label class="form-label">Site Name</label>
-                                            <input type="text" name="site_name" class="form-control">
+                                            <label class="form-label">Vendor</label>
+                                            <select name="reseller" class="form-control select2">
+                                                <option value="">All</option>
+                                                @foreach($organizations as $org)
+                                                    <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
+                                                        {{ $org->name }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
                                     <div class="col-sm-6 col-md-2">
@@ -122,8 +123,8 @@
                                     </div>
                                     <div class="col-sm-6 col-md-2">
                                         <div class="mb-3">
-                                            <label class="form-label">Mac Address</label>
-                                            <input type="text" name="mac_address" class="form-control">
+                                            <label class="form-label">Template Name</label>
+                                            <input type="text" name="template_name" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-12 text-end">
@@ -177,7 +178,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex align-items-center">
-                            <h2 class="text-lime mb-0">Add DECT</h2>
+                            <h2 class="text-lime mb-0">Upload Template</h2>
                         </div>
                         <div class="card-body">
                                 <form id="deviceForm">
@@ -231,244 +232,5 @@
         </div>
     </div>
 
-    @section('scripts')
-        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
-        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.bootstrap5.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
-
-        <script>
-$(document).ready(function() {
-    let table = $('#dect_table').DataTable({
-        ajax: {
-            url: "{{ route('provisioning.dect') }}",
-            data: function (d) {
-                // Send filter data with request
-                d.ucx_sn = $('input[name="ucx_sn"]').val();
-                d.reseller = $('select[name="reseller"]').val();
-                d.site_name = $('input[name="site_name"]').val();
-                d.model = $('select[name="model"]').val();
-                d.mac_address = $('input[name="mac_address"]').val();
-            }
-        },
-        columns: [
-            {
-                data: null,
-                render: function(data, type, row) {
-                        return `<input type="checkbox" class="single-select form-check-input" name="ids[]" value="${row.id}"/>`;
-                    },
-                orderable: false
-            },
-            {
-                data: 'mac_address',
-                render: function(data, type, row) {
-                    return `<a href="/provisioning/dect/dect-details/${row.id}">${data}</a>`;
-                }
-            },
-            { data: 'ucx_sn' },
-            { data: 'site_name' },
-            { data: 'model' },
-            { data: 'extensions' },
-            { data: 'last_push_date' }
-        ],
-        paging: true,
-        searching: false,
-        lengthChange: false,
-        ordering: true,
-        info: false
-    });
-
-    // ✅ Filter form submit
-    $('#filterForm').on('submit', function(e) {
-        e.preventDefault();
-        table.ajax.reload();
-        $('#loader_overlay').hide();
-    });
-
-    // ✅ Clear filters
-    $('#clearFilters').on('click', function() {
-        $('#filterForm')[0].reset();
-        $('#loader_overlay').hide();
-        table.ajax.reload(); // reload with no filters
-    });
-
-        $('#deviceForm').on('submit', function(e) {
-            e.preventDefault();
-
-            $.ajax({
-                url: "{{ route('provisioning.dect.store') }}",
-                method: "POST",
-                data: $(this).serialize(),
-                success: function(response) {
-                    if (response.success) {
-                        $('#loader_overlay').hide();
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Added!',
-                            text: 'Dect Record added Successfully',
-                            timer: 1500,
-                            showConfirmButton: false
-                        });
-                        $('#deviceForm')[0].reset();
-                        table.ajax.reload();
-                    } else {
-                        $('#loader_overlay').hide();
-                        table.ajax.reload();
-                        Swal.fire({
-                        icon: 'error',
-                        title: 'Oops...',
-                        text: 'Something went wrong while saving the record!'
-                        });
-                        
-                    }
-                },
-                error: function(xhr) {
-                    let errors = xhr.responseJSON.errors;
-                    let errorMsg = '';
-                    $.each(errors, function(key, value) {
-                        errorMsg += value + "\n";
-                    });
-                    $('#loader_overlay').hide();
-                    table.ajax.reload();
-                    Swal.fire({
-                    icon: 'error',
-                    title: 'Validation Error',
-                    text: errorMsg
-                    });
-                }
-            });
-        });
-
-
-            $('#allSelect').change(function () {
-                $('.single-select').prop('checked', $(this).prop('checked'));
-            });
-
-            // -------- Bulk Delete --------
-            $('#deleteSelectedBtn').click(() => {
-                let ids = [];
-                $('.single-select:checked').each(function () {
-                    ids.push($(this).val());
-                });
-
-                if (ids.length == 0) {
-                    Swal.fire('Warning', 'Please select at least one record', 'warning');
-                    return;
-                }
-
-                Swal.fire({
-                    title: 'Are you sure?',
-                    text: `${ids.length} record(s) will be deleted!`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Yes, delete them!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        $.post('{{ route("provisioning.dect.bulkDelete") }}',
-                            { ids: ids, _token: '{{ csrf_token() }}' },
-                            function (response) {
-                                Swal.fire('Deleted!', `${ids.length} record(s) have been deleted.`, 'success');
-                                table.ajax.reload();
-                            }
-                        ).fail(function () {
-                            Swal.fire('Error', 'Failed to delete records', 'error');
-                        });
-                    }
-                });
-            });
-    });
-</script>
-
-<script>
-        new TomSelect("#slno", {
-            valueField: "id",
-            labelField: "text",
-            searchField: "text",
-            load: function (query, callback) {
-                if (!query.length) return callback();
-                fetch("{{ route('provisioning.serials.get') }}?q=" + encodeURIComponent(query))
-                    .then(res => res.json())
-                    .then(json => {
-                        callback(json);
-                    }).catch(() => {
-                        callback();
-                    });
-            }, 
-            onChange: function(value) {
-                let option = this.options[value];
-                if (option) {
-                    if (option.hostname) {
-                        document.querySelector("#s1_ip").value = option.hostname;
-                        document.querySelector("#s2_ip").value = option.public_ip || '';
-                    } else {
-                        document.querySelector("#s1_ip").value = option.public_ip || '';
-                        document.querySelector("#s2_ip").value = '';
-                    }
-                }
-            }
-
-
-        });
-    </script>
-
-    <script>
-        $('#pushSelected').on('click', function() {
-    // Collect all checked IDs
-    let selectedIds = [];
-    $('.single-select:checked').each(function() {
-        selectedIds.push($(this).val());
-    });
-
-    if (selectedIds.length === 0) {
-        Swal.fire({
-            icon: 'warning',
-            title: 'No Records Selected',
-            text: 'Please select at least one DECT record to push configuration.'
-        });
-        return;
-    }
-
-    Swal.fire({
-        title: 'Are you sure?',
-        text: "This will generate and save config files for selected DECT devices.",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonText: 'Yes, Push!',
-        cancelButtonText: 'Cancel'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            $.ajax({
-                url: "{{ route('provisioning.dect.pushMultiple') }}",
-                type: 'POST',
-                data: {
-                    ids: selectedIds,
-                    _token: '{{ csrf_token() }}'
-                },
-                success: function(response) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Pushed Successfully',
-                        text: response.message
-                    });
-                    $('#dect_table').DataTable().ajax.reload();
-                },
-                error: function(xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Push Failed',
-                        text: xhr.responseJSON?.message || 'An error occurred.'
-                    });
-                }
-            });
-        }
-    });
-});
-
-    </script>
-    @endsection
 @endsection

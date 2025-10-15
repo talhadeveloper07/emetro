@@ -68,6 +68,8 @@
                             <div class="tab-content">
                                 <!-- Profile Tab -->
                                 <div class="tab-pane active show" id="tabs-profile" role="tabpanel">
+                                <input type="hidden" name="slno" id="slno" value="{{ $record->product_slno }}">
+                                <input type="hidden" name="parent_slno" id="parent_slno" value="{{ $record->ucx_sn }}">
                                     <div class="row">
                                         <!-- <div class="col-md-3 col-sm-12 mb-3">
                                             <label class="form-label">UCX Serial Number</label>
