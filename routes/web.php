@@ -21,6 +21,7 @@ use App\Models\ProvisioningInfinity3065;
 use App\Http\Controllers\VariableController;
 use App\Http\Controllers\DectProvisioningController;
 use App\Http\Controllers\DectExtensionController;
+use App\Http\Controllers\SipPhoneController;
 
 
 Route::get('test', function () {
@@ -272,6 +273,10 @@ Route::middleware(['auth','2fa'])->group(function () {
     ->name('dect.updateExtensionIndex');
     Route::post('/dect/delete-extensions', [DectProvisioningController::class, 'deleteExtensions'])
     ->name('dect.deleteExtensions');
+
+     // SIP Phones
+
+     Route::get('/sip-phones',[SipPhoneController::class,'index'])->name('sip_phones');
 
 
 

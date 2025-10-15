@@ -85,8 +85,13 @@
                                     <div class="col-sm-6 col-md-3">
                                         <div class="mb-3">
                                             <label class="form-label">Organization</label>
-                                            <select id="organization" name="org_id" class="form-control mb-3 select2">
+                                            <select name="org_id" class="form-control select2">
                                                 <option value="">All</option>
+                                                @foreach($organizations as $org)
+                                                    <option value="{{ $org->id }}" {{ request('org_id') == $org->id ? 'selected' : '' }}>
+                                                        {{ $org->name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                     </div>
@@ -577,6 +582,8 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
 // Add this function to hide loader
@@ -805,6 +812,7 @@ function hideLoader() {
             // Filter form submission
             $('#filterForm').on('submit', function(e) {
                 e.preventDefault();
+                $('#loader_overlay').hide();
                 table.ajax.reload();
             });
 

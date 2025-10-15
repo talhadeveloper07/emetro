@@ -27,7 +27,7 @@ class ProvisioningInfinity3065Controller extends Controller
     
         // Filters
         if ($request->filled('org_id')) {
-            $query->where('org_id', $request->org_id);
+            $query->where('reseller_id', $request->org_id);
         }
         if ($request->filled('phone_type')) {
             $query->where('device_type', 'like', "%{$request->phone_type}%");
@@ -93,7 +93,7 @@ class ProvisioningInfinity3065Controller extends Controller
             ->skip($offset)
             ->take($limit)
             ->get();
-    
+
         // Map data
         $data = $records->map(function ($row) {
             return [
@@ -132,11 +132,11 @@ class ProvisioningInfinity3065Controller extends Controller
         'mobile' => 'nullable|string|max:20',
         'notification_method' => 'nullable|string|max:50',
 
-        's1_ip' => 'nullable|ip',
+        's1_ip' => 'nullable',
         's1_port' => 'nullable|integer|min:0',
         's1_retry_number' => 'nullable|integer|min:0',
 
-        's2_ip' => 'nullable|ip',
+        's2_ip' => 'nullable',
         's2_port' => 'nullable|integer|min:0',
         's2_retry_number' => 'nullable|integer|min:0',
 
@@ -237,11 +237,11 @@ class ProvisioningInfinity3065Controller extends Controller
         'mobile' => 'nullable|string|max:20',
         'notification_method' => 'nullable|string|max:50',
 
-        's1_ip' => 'nullable|ip',
+        's1_ip' => 'nullable',
         's1_port' => 'nullable|integer|min:0',
         's1_retry_number' => 'nullable|integer|min:0',
 
-        's2_ip' => 'nullable|ip',
+        's2_ip' => 'nullable',
         's2_port' => 'nullable|integer|min:0',
         's2_retry_number' => 'nullable|integer|min:0',
 

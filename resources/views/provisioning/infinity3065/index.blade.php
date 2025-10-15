@@ -47,7 +47,7 @@
                     <div class="row g-3">
                         <div class="col-md-3">
                             <label class="form-label">Organization</label>
-                            <select name="org_id" class="form-control">
+                            <select name="org_id" class="form-control select2">
                                 <option value="">All</option>
                                 @foreach($organizations as $org)
                                     <option value="{{ $org->id }}" {{ request('org_id') == $org->id ? 'selected' : '' }}>
@@ -379,9 +379,9 @@
                 // Profile information
                 reviewHTML += '<div class="col-md-6"><h6>Profile Information:</h6><ul class="list-unstyled">';
                 reviewHTML += `<li><strong>UCX Serial Number:</strong> ${$('select[name="slno"]').val() || 'N/A'}</li>`;
-                reviewHTML += `<li><strong>S1 IP:</strong> ${$('input[name="s1_ip"]').val() || 'N/A'}</li>`;
+                reviewHTML += `<li><strong>S1 IP:</strong> ${$('#s1_ip').val() || 'N/A'}</li>`;
                 reviewHTML += `<li><strong>S1 Port:</strong> ${$('input[name="s1_port"]').val() || 'N/A'}</li>`;
-                reviewHTML += `<li><strong>S2 IP:</strong> ${$('input[name="s2_ip"]').val() || 'N/A'}</li>`;
+                reviewHTML += `<li><strong>S2 IP:</strong> ${$('#s2_ip').val() || 'N/A'}</li>`;
                 reviewHTML += '</ul></div>';
 
                 // User information
@@ -462,7 +462,7 @@
                         tomSelect.setValue(data.slno, true);
 
                         $('[name="form_mode"]').val('edit');
-                        $('[name="device_id"]').val(data.device_id);
+                        // $('[name="device_id"]').val(data.device_id);
                         $('[name="first_name"]').val(data.first_name);
                         $('[name="last_name"]').val(data.last_name);
                         $('[name="extension"]').val(data.extension);
