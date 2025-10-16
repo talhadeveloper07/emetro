@@ -8,6 +8,7 @@ use App\Models\ProductSerialAccess;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Str;
+use App\Helpers\XmlHelper;
 use Illuminate\Support\Facades\Storage;
 
 class ProvisioningInfinity3065Controller extends Controller
@@ -163,7 +164,10 @@ class ProvisioningInfinity3065Controller extends Controller
         } while (ProvisioningInfinity3065::where('device_id', $validated['device_id'])->exists());
     }
 
-    ProvisioningInfinity3065::create($validated);
+    $record = ProvisioningInfinity3065::create($validated);
+
+    // XmlHelper::saveXml($record);
+
 
     return response()->json(['success' => true, 'message' => 'Record created successfully']);
 }
