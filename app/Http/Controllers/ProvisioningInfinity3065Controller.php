@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ProvisioningInfinity3065;
-use App\Models\ProductSerialAccess;
+use App\Models\ProductSerial;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Str;
@@ -335,17 +335,25 @@ class ProvisioningInfinity3065Controller extends Controller
     public function getSerials(Request $request)
     {
         $search = $request->q;
-
-        $serials = ProductSerialAccess::query()
+    
+        $serials = ProductSerial::query()
             ->when($search, function ($query) use ($search) {
-                $query->where('slno', 'like', "%$search%");
+                $query->where('product_serial.slno', 'like', "%$search%");
             })
-            ->select('slno as id', 'slno as text', 'hostname','public_ip')
+            ->leftJoin('product_serial_access as psa', 'psa.slno', '=', 'product_serial.slno')
+            ->select(
+                'product_serial.slno as id',
+                'product_serial.slno as text',
+                'psa.hostname',
+                'psa.public_ip',
+            )
+            ->where('product_serial.type', 'Parent')
             ->limit(20)
             ->get();
-
+    
         return response()->json($serials);
     }
+    
 
     public function getHostIps(Request $request)
     {
