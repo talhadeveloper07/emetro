@@ -41,8 +41,26 @@
                                 class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M15 6l-6 6l6 6" />
-                            </svg></a> SIP Phones
+                            </svg></a> Extensions
                     </h2>
+                            <ul class="nav nav-tabs card-header-tabs nav-fill my-3" data-bs-toggle="tabs" role="tablist">
+                                <li class="nav-item" role="presentation">
+                                    <a  href="{{ route('provisioning.templates') }}"  class="nav-link" 
+                                        aria-selected="true" role="tab">Templates</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a  href="{{ route('provisioning.mac') }}"  class="nav-link"  aria-selected="false"
+                                        >MAC</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="{{ route('provisioning.extensions') }}" class="nav-link active"  aria-selected="false"
+                                        >Extensions</a>
+                                </li>
+                                <li class="nav-item" role="presentation">
+                                    <a href="#" class="nav-link"  aria-selected="false"
+                                       >Help</a>
+                                </li>
+                            </ul>
                 </div>
                 <!-- Page title actions -->
                 <div class="col-auto ms-auto d-print-none">
@@ -85,7 +103,7 @@
                         <form id="filterForm">
                             <div class="card-body">
                                 <div class="row row-cards">
-                                    <div class="col-sm-6 col-md-2">
+                                    <div class="col-sm-6 col-md-3">
                                         <div class="mb-3">
                                             <label class="form-label">Organization</label>
                                             <select name="reseller" class="form-control select2">
@@ -98,35 +116,43 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6 col-md-2">
+                                    <div class="col-sm-6 col-md-3">
                                         <div class="mb-3">
-                                            <label class="form-label">Vendor</label>
-                                            <select name="reseller" class="form-control select2">
-                                                <option value="">All</option>
-                                                @foreach($organizations as $org)
-                                                    <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
-                                                        {{ $org->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
+                                            <label class="form-label">Extension</label>
+                                            <input type="text" name="extension" class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6 col-md-2">
+                                    <div class="col-sm-6 col-md-3">
                                         <div class="mb-3">
-                                            <label class="form-label">Model</label>
-                                            <select id="edit-status" name="model" class="form-control form-select">
-                                                <option value="" selected="selected">(Select Model)</option>
-                                                <option value="AP500D/AP510D">AP500D/AP510D</option>
-                                                <option value="AP500M/AP510M">AP500M/AP510M</option>
-                                            </select>
+                                            <label class="form-label">MAC</label>
+                                            <input type="text" name="mac" class="form-control">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6 col-md-2">
+                                    <div class="col-sm-6 col-md-3">
                                         <div class="mb-3">
-                                            <label class="form-label">Template Name</label>
-                                            <input type="text" name="template_name" class="form-control">
+                                            <label class="form-label">Site Name</label>
+                                            <input type="text" name="site_name" class="form-control">
                                         </div>
                                     </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Port</label>
+                                            <input type="text" name="port" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Server Address</label>
+                                            <input type="text" name="server_address" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">UCX Serial Number</label>
+                                            <input type="text" name="ucx_slno" class="form-control">
+                                        </div>
+                                    </div>
+                                  
                                     <div class="col-sm-12 col-md-12 text-end">
                                         <button type="submit" class="btn btn-primary">Filter</button>
                                         <button type="button" id="clearFilters" class="btn btn-secondary">Clear
@@ -141,33 +167,26 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="table-responsive">
-                            <table class="table table-selectable card-table table-vcenter text-nowrap datatable"
-                                id="dect_table">
-                                <thead>
-                                    <tr>
-                                        <th class="w-1">
-                                            <input class="form-check-input m-0 align-middle all-select" type="checkbox"
-                                                aria-label="Select all" id="allSelect">
-                                        </th>
-                                        <th>MAC Address</th>
-                                        <th>UCX SN</th>
-                                        <th>Site Name</th>
-                                        <th>Model</th>
-                                        <th>Extensions</th>
-                                        <th>Last Push</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Will be auto-filled by DataTables -->
-                                </tbody>
-                            </table>
+                        <table id="macTable" class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAll"></th>
+                        <th>MAC</th>
+                        <th>Vendor</th>
+                        <th>Model</th>
+                        <th>Template Name</th>
+                        <th>Re-seller</th>
+                        <th>Modified Date</th>
+                    </tr>
+                </thead>
+            </table>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <button id="pushSelected" class="btn btn-primary">Push Configuration To Public Server</button>
+                    <button class="btn btn-primary" id="deleteSelectedBtn">PUSH CONFIGURATION TO PUBLIC SERVER</button>
                 </div>
                 <div class="col-md-6 text-end">
                     <button class="btn btn-danger" id="deleteSelectedBtn">Delete</button>
@@ -178,7 +197,7 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="card-header d-flex align-items-center">
-                            <h2 class="text-lime mb-0">Upload Template</h2>
+                            <h2 class="text-lime mb-0">Import Extensions</h2>
                         </div>
                         <div class="card-body">
                                 <form id="deviceForm">
@@ -198,29 +217,35 @@
                                             </div>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
-                                            <div class="mb-3">
-                                                <label class="form-label">UCX Serial Number</label>
-                                                <select name="slno" id="slno" class="form-select" required></select>
-                                            </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Server Address</label>
+                                            <input type="text" name="server_address" class="form-control">
                                         </div>
-                                        <div class="col-sm-6 col-md-3">
-                                            <div class="mb-3">
-                                                <label class="form-label">Model</label>
-                                                <select id="edit-status" name="model" class="form-control form-select">
-                                                    <option value="" selected="selected">(Select Model)</option>
-                                                    <option value="AP500D/AP510D">AP500D/AP510D</option>
-                                                    <option value="AP500M/AP510M">AP500M/AP510M</option>
-                                                </select>
-                                            </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">UCX Serial Number</label>
+                                            <input type="text" name="ucx_slno" class="form-control">
                                         </div>
-                                        <div class="col-sm-6 col-md-3">
-                                            <div class="mb-3">
-                                                <label class="form-label">Mac</label>
-                                                <input type="text" name="mac" class="form-control">
-                                            </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <div class="mb-3">
+                                            <label class="form-label">Port</label>
+                                            <input type="text" name="port" class="form-control">
                                         </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-4">
+                                        <div class="mb-3">
+                                            <label class="form-label">Select CSV File to Upload</label>
+                                            <input type="file" name="extension_file" class="form-control">
+                                            <span style="font-size: 11px;">Use the CSV file exported from: <b>PBX > Batch Configuration > Batch of Extensions</b><br>
+                                            Only entries with Tech=sip are imported. Existing entries are overwritten.
+                                            </span>
+                                        </div>
+                                    </div>
+
                                         <div class="col-sm-12 col-md-12 text-end">
-                                            <button type="submit" class="btn btn-primary">Add</button>
+                                            <button type="submit" class="btn btn-primary">Import</button>
                                         </div>
                                     </div>
                                 </form>
@@ -229,8 +254,55 @@
                     </div>
                 </div>
             </div>
+
+           
         </div>
     </div>
 
+    @section('scripts')
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script>
+$(document).ready(function() {
+    const table = $('#macTable').DataTable({
+    ajax: '{{ route('provisioning.mac.data') }}',
+    columns: [
+        {
+            data: 'id',
+            orderable: false,
+            searchable: false,
+            render: function (data, type, row) {
+                return `<input type="checkbox" class="row-checkbox" value="${data}">`;
+            }
+        },
+        { data: 'mac_name', title: 'MAC' },
+        { data: 'vendor', title: 'Vendor' },
+        { data: 'model', title: 'Model' },
+        { data: 'template_name', title: 'Template' },
+        { data: 're_seller', title: 'Reseller' },
+        { data: 'modified_date', title: 'Modified Date' },
+    ],
+    paging: true,
+    searching: false,
+    lengthChange: false,
+    info: false
+});
 
+// ✅ Select All functionality
+$('#selectAll').on('change', function () {
+    const isChecked = $(this).is(':checked');
+    $('.row-checkbox').prop('checked', isChecked);
+});
+
+// ✅ Keep Select All synced if user manually toggles checkboxes
+$('#macTable').on('change', '.row-checkbox', function () {
+    const all = $('.row-checkbox').length;
+    const checked = $('.row-checkbox:checked').length;
+    $('#selectAll').prop('checked', all === checked);
+});
+
+});
+</script>
+@endsection
 @endsection
