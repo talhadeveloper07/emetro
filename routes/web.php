@@ -276,7 +276,14 @@ Route::middleware(['auth','2fa'])->group(function () {
 
      // SIP Phones
 
-     Route::get('/sip-phones',[SipPhoneController::class,'index'])->name('sip_phones');
+     Route::get('/templates',[SipPhoneController::class,'index'])->name('templates');
+     Route::get('/templates/data', [SipPhoneController::class, 'getTemplatesData'])->name('templates.data');
+     Route::get('/get-models/{vendor}', [SipPhoneController::class, 'getModelsByVendor']);
+     Route::get('/mac',[SipPhoneController::class,'mac_index'])->name('mac');
+     Route::get('/mac/data', [SipPhoneController::class, 'getMacData'])->name('mac.data');
+     Route::get('/extensions',[SipPhoneController::class,'extension_index'])->name('extensions');
+
+
 
 
 
