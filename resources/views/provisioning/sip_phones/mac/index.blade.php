@@ -330,6 +330,27 @@ $('#macTable').on('change', '.row-checkbox', function () {
     $('#selectAll').prop('checked', all === checked);
 });
 
+$(document).on('change', '.template-select', function () {
+    const macId = $(this).data('mac-id');
+    const templateName = $(this).val();
+
+    $.ajax({
+        url: "{{ route('provisioning.mac.updateTemplate') }}",
+        method: "POST",
+        data: {
+            _token: '{{ csrf_token() }}',
+            mac_id: macId,
+            template_name: templateName,
+        },
+        success: function (res) {
+            if (res.success) {
+                console.log("Template updated successfully!");
+            }
+        },
+    });
+});
+
+
 });
 </script>
 

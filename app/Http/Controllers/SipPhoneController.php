@@ -126,31 +126,65 @@ class SipPhoneController extends Controller
 
     public function getMacData()
     {
-        $macs = Mac::select(
-            'id',
-            'mac as mac_name',
-            'vendor',
-            'model',
-            'template_name',
-            're_seller',
-            'modified_date'
-        )->get();
-
+        $macs = DB::table('mac')
+            ->select('id', 'mac as mac_name', 'vendor', 'model', 'template_name', 're_seller', 'modified_date')
+            ->get();
+    
         $data = $macs->map(function ($item) {
+            $templates = $this->getTemplates($item->vendor, $item->model);
+    
+            // Build dropdown HTML
+            $templateSelect = '<select name="template_name" class="form-select form-select-sm template-select" data-mac-id="' . $item->id . '" style="width:100%;">';
+            $templateSelect .= '<option value="">Select Template</option>';
+    
+            foreach ($templates as $template) {
+                $selected = ($item->template_name === $template->template_name) ? 'selected' : '';
+                $templateSelect .= '<option value="' . e($template->template_name) . '" ' . $selected . '>' . e($template->template_name) . '</option>';
+            }
+    
+            $templateSelect .= '</select>';
+    
             return [
                 'checkbox' => '<input type="checkbox" class="record-checkbox" value="'.$item->id.'">',
                 'id' => $item->id,
-                'mac_name' => $item->mac_name,
-                'vendor' => $item->vendor,
-                'model' => $item->model,
-                'template_name' => $item->template_name,
-                're_seller' => $item->re_seller,
-                'modified_date' => now(),
+                'mac_name' => e($item->mac_name),
+                'vendor' => e($item->vendor),
+                'model' => e($item->model),
+                'template_name' => $templateSelect, // 👈 dropdown instead of plain text
+                're_seller' => e($item->re_seller),
+                'modified_date' => $item->modified_date ? date('Y-m-d', strtotime($item->modified_date)) : '-',
             ];
         });
-
+    
         return response()->json(['data' => $data]);
     }
+
+    private function getTemplates($vendor, $model)
+    {
+        return Template::where('vendor', $vendor)
+            ->where('model', $model)
+            ->select('template_name')
+            ->get();
+    }
+
+    public function update_mac_template(Request $request)
+{
+    $request->validate([
+        'mac_id' => 'required|integer',
+        'template_name' => 'nullable|string',
+    ]);
+
+    DB::table('mac')
+        ->where('id', $request->mac_id)
+        ->update([
+            'template_name' => $request->template_name,
+            'modified_date' => now(),
+        ]);
+
+    return response()->json(['success' => true]);
+}
+
+    
     public function template_store(Request $request)
         {
             $request->validate([
