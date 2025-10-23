@@ -81,20 +81,21 @@
 
                       <div class="col-md-3 col-sm-6">
                       <label class="form-label">Vendor</label>
-                        <select id="vendor" name="vendor" class="form-control">
-                                <option value="">Select Vendor</option>
-                                <option value="Yealink">Yealink</option>
-                                <option value="Grandstream">Grandstream</option>
-                                <option value="Fanvil">Fanvil</option>
-                                <option value="Snom">Snom</option>
-                                <option value="Polycom">Polycom</option>
-                            </select>
+                        <select id="vendor_filter" name="vendor" class="form-control vendor-select">
+                            <option value="">Select Vendor</option>
+                            <option value="Yealink">Yealink</option>
+                            <option value="Grandstream">Grandstream</option>
+                            <option value="Fanvil">Fanvil</option>
+                            <option value="Snom">Snom</option>
+                            <option value="Polycom">Polycom</option>
+                        </select>
                       </div>
                        <div class="col-sm-6 col-md-3">
                        <label class="form-label">Model</label>
-                        <select id="model" name="model" class="form-control">
+                       <select id="model_filter" name="model" class="form-control model-select">
                             <option value="">Select Model</option>
                         </select>
+
                        </div>
 
                         <div class="col-sm-6 col-md-2">
@@ -132,7 +133,7 @@
 
         <div class="row mt-2">
                 <div class="col-md-12 text-end">
-                    <button class="btn btn-danger" id="deleteSelectedBtn">Delete</button>
+                    <button class="btn btn-danger" id="deleteSelected">Delete</button>
                 </div>
             </div>
 
@@ -159,23 +160,24 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6 col-md-2">
+                                        <div class="col-md-3 col-sm-6">
                                             <label class="form-label">Vendor</label>
-                                            <select name="vendor" class="form-control select2">
-                                                <option value="">All</option>
+                                            <select id="vendor_upload" name="vendor" class="form-control vendor-select">
+                                                <option value="">Select Vendor</option>
                                                 <option value="Yealink">Yealink</option>
                                                 <option value="Grandstream">Grandstream</option>
+                                                <option value="Fanvil">Fanvil</option>
+                                                <option value="Snom">Snom</option>
+                                                <option value="Polycom">Polycom</option>
                                             </select>
-                                        </div>
-                                        <div class="col-sm-6 col-md-3">
-                                            <div class="mb-3">
-                                                <label class="form-label">Model</label>
-                                                <select id="edit-status" name="model" class="form-control form-select">
-                                                    <option value="" selected="selected">(Select Model)</option>
-                                                    <option value="AP500D/AP510D">AP500D/AP510D</option>
-                                                    <option value="AP500M/AP510M">AP500M/AP510M</option>
-                                                </select>
+
+
                                             </div>
+                                        <div class="col-sm-6 col-md-3">
+                                        <label class="form-label">Model</label>
+                                        <select id="model_upload" name="model" class="form-control model-select">
+                                            <option value="">Select Model</option>
+                                        </select>
                                         </div>
                                         <div class="col-sm-6 col-md-3">
                                             <div class="mb-3">
@@ -209,7 +211,8 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
     const table = $('#templates-table').DataTable({
@@ -218,6 +221,7 @@ $(document).ready(function() {
             type: "GET",
             data: function (d) {
                 d.vendor = $('select[name="vendor"]').val();
+                d.organization = $('select[name="organization"]').val();
                 d.model = $('select[name="model"]').val();
                 d.template_name = $('input[name="template_name"]').val();
             },
@@ -249,6 +253,66 @@ $(document).ready(function() {
     info: false,
     });
 
+    $('#selectAll').on('click', function() {
+        let checked = $(this).is(':checked');
+        $('.row-checkbox').prop('checked', checked);
+    });
+
+    // ✅ Delete Selected Rows
+    $('#deleteSelected').on('click', function() {
+        let selected = $('.row-checkbox:checked').map(function() {
+            return $(this).val();
+        }).get();
+
+        if (selected.length === 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'No Templates Selected',
+                text: 'Please select at least one template to delete.'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This action will permanently delete selected templates.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, Delete!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('provisioning.templates.bulkDelete') }}",
+                    method: "POST",
+                    data: {
+                        ids: selected,
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        $('#selectAll').prop('checked', false);
+                        table.ajax.reload(null, false);
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to delete templates.'
+                        });
+                    }
+                });
+            }
+        });
+    });
+
     // Filter submit
     $('#filterForm').on('submit', function(e) {
         e.preventDefault();
@@ -273,15 +337,87 @@ $(document).ready(function() {
 </script>
 
 <script>
-$('#vendor').on('change', function() {
+$(document).on('change', '.vendor-select', function() {
     let vendor = $(this).val();
-    $('#model').html('<option>Loading...</option>');
-    $.get('/provisioning/get-models/' + vendor, function(data) {
-        $('#model').empty().append('<option value="">Select Model</option>');
-        $.each(data, function(key, value) {
-            $('#model').append('<option value="' + key + '">' + value + '</option>');
+    let modelSelect = $(this).closest('.row').find('.model-select');
+
+    modelSelect.html('<option>Loading...</option>');
+
+    if (vendor) {
+        $.get('/provisioning/get-models/' + vendor, function(data) {
+            modelSelect.empty().append('<option value="">Select Model</option>');
+            $.each(data, function(key, value) {
+                modelSelect.append('<option value="' + key + '">' + value + '</option>');
+            });
+        });
+    } else {
+        modelSelect.empty().append('<option value="">Select Model</option>');
+    }
+});
+</script>
+<script>
+$(document).ready(function() {
+    $('#deviceForm').on('submit', function(e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{{ route('provisioning.templates.store') }}",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function() {
+                $('#loader_overlay').hide();
+                Swal.fire({
+                    title: 'Uploading...',
+                    text: 'Please wait while we upload your template.',
+                    allowOutsideClick: false,
+                    didOpen: () => Swal.showLoading()
+                });
+            },
+            success: function(response) {
+                Swal.close();
+
+                if (response.success) {
+                $('#loader_overlay').hide();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success',
+                        text: response.message,
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    // Optional: Reset form
+                    $('#deviceForm')[0].reset();
+                    $('.select2').val(null).trigger('change');
+                } else {
+                $('#loader_overlay').hide();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong!',
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.close();
+                $('#loader_overlay').hide();
+                let message = 'Something went wrong!';
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    message = Object.values(xhr.responseJSON.errors).join('<br>');
+                }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Validation Error',
+                    html: message,
+                });
+            }
         });
     });
 });
 </script>
+
 @endsection
