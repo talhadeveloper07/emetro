@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\ProvisioningInfinity3065;
-use App\Models\ProductSerialAccess;
+use App\Models\ProductSerial;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\Support\Str;
+use App\Helpers\XmlHelper;
 use Illuminate\Support\Facades\Storage;
 
 class ProvisioningInfinity3065Controller extends Controller
@@ -21,13 +22,13 @@ class ProvisioningInfinity3065Controller extends Controller
     public function getData(Request $request)
     {
         $query = ProvisioningInfinity3065::query();
-
+    
         // Total records before filtering
         $totalRecords = ProvisioningInfinity3065::count();
-
+    
         // Filters
         if ($request->filled('org_id')) {
-            $query->where('org_id', $request->org_id);
+            $query->where('reseller_id', $request->org_id);
         }
         if ($request->filled('phone_type')) {
             $query->where('device_type', 'like', "%{$request->phone_type}%");
@@ -35,8 +36,8 @@ class ProvisioningInfinity3065Controller extends Controller
         if ($request->filled('phone_serial_number')) {
             $query->where('slno', 'like', "%{$request->phone_serial_number}%");
         }
-        if ($request->filled('mac_address')) {
-            $query->where('mac_address', 'like', "%{$request->mac_address}%");
+        if ($request->filled('device_id')) {
+            $query->where('device_id', 'like', "%{$request->device_id}%");
         }
         if ($request->filled('s1_ip')) {
             $query->where('s1_ip', 'like', "%{$request->s1_ip}%");
@@ -50,15 +51,16 @@ class ProvisioningInfinity3065Controller extends Controller
         if ($request->filled('status')) {
             $query->where('device_current_status', $request->status);
         }
-
+    
         // Filtered count
         $filteredRecords = $query->count();
-
+    
         // Sorting
         $columns = [
             'checkbox',
             'device_id',
             'first_name',
+            'last_name',
             'slno',
             'device_type',
             's1_info',
@@ -78,31 +80,38 @@ class ProvisioningInfinity3065Controller extends Controller
         } else {
             $query->orderBy('updated_at', 'desc');
         }
-
+    
         // Pagination
         $limit = $request->length ?? 10;
         $offset = $request->start ?? 0;
-        
-        $records = $query->skip($offset)
-                         ->take($limit)
-                         ->get();
+    
+        // ✅ Join organizations to get organization name for reseller_id
+        $table = (new ProvisioningInfinity3065)->getTable();
+    
+        $records = $query
+            ->leftJoin('organizations', 'organizations.id', '=', $table.'.reseller_id')
+            ->select($table.'.*', 'organizations.name as organization_name')
+            ->skip($offset)
+            ->take($limit)
+            ->get();
 
+        // Map data
         $data = $records->map(function ($row) {
             return [
                 'checkbox' => '<input type="checkbox" class="single-select" value="'.$row->slno.'">',
                 'device_id' => $row->device_id,
-                'first_name' => $row->first_name,
+                'full_name' => $row->first_name .' '.$row->last_name,
                 'serial_number' => '<a href="'.route('provisioning.infinity3065.show', $row->slno).'">'.$row->slno.'</a>',
-                'device_type' => $row->device_type ?? '#',
+                'device_type' => $row->device_type ?? '',
                 's1_info' => ($row->s1_ip ?? '').':'.($row->s1_port ?? ''),
-                'reseller_id' => $row->reseller_id,
+                'reseller_id' => $row->organization_name ?? '',
                 'device_current_status' => $row->device_current_status,
                 'updated' => $row->updated_at ? $row->updated_at->format('Y-m-d H:i:s') : '',
                 'actions' => '<button type="button" class="btn btn-sm btn-primary editBtn" data-id="'.$row->slno.'">Edit</button>
                               <button type="button" class="btn btn-sm btn-danger deleteBtn" data-id="'.$row->slno.'">Delete</button>'
             ];
         });
-
+    
         return response()->json([
             'draw' => intval($request->draw),
             'recordsTotal' => $totalRecords,
@@ -110,6 +119,7 @@ class ProvisioningInfinity3065Controller extends Controller
             'data' => $data,
         ]);
     }
+    
 
  public function store(Request $request)
 {
@@ -123,11 +133,11 @@ class ProvisioningInfinity3065Controller extends Controller
         'mobile' => 'nullable|string|max:20',
         'notification_method' => 'nullable|string|max:50',
 
-        's1_ip' => 'nullable|ip',
+        's1_ip' => 'nullable',
         's1_port' => 'nullable|integer|min:0',
         's1_retry_number' => 'nullable|integer|min:0',
 
-        's2_ip' => 'nullable|ip',
+        's2_ip' => 'nullable',
         's2_port' => 'nullable|integer|min:0',
         's2_retry_number' => 'nullable|integer|min:0',
 
@@ -154,7 +164,10 @@ class ProvisioningInfinity3065Controller extends Controller
         } while (ProvisioningInfinity3065::where('device_id', $validated['device_id'])->exists());
     }
 
-    ProvisioningInfinity3065::create($validated);
+    $record = ProvisioningInfinity3065::create($validated);
+
+    // XmlHelper::saveXml($record);
+
 
     return response()->json(['success' => true, 'message' => 'Record created successfully']);
 }
@@ -228,11 +241,11 @@ class ProvisioningInfinity3065Controller extends Controller
         'mobile' => 'nullable|string|max:20',
         'notification_method' => 'nullable|string|max:50',
 
-        's1_ip' => 'nullable|ip',
+        's1_ip' => 'nullable',
         's1_port' => 'nullable|integer|min:0',
         's1_retry_number' => 'nullable|integer|min:0',
 
-        's2_ip' => 'nullable|ip',
+        's2_ip' => 'nullable',
         's2_port' => 'nullable|integer|min:0',
         's2_retry_number' => 'nullable|integer|min:0',
 
@@ -322,17 +335,25 @@ class ProvisioningInfinity3065Controller extends Controller
     public function getSerials(Request $request)
     {
         $search = $request->q;
-
-        $serials = ProductSerialAccess::query()
+    
+        $serials = ProductSerial::query()
             ->when($search, function ($query) use ($search) {
-                $query->where('slno', 'like', "%$search%");
+                $query->where('product_serial.slno', 'like', "%$search%");
             })
-            ->select('slno as id', 'slno as text', 'hostname','public_ip')
+            ->leftJoin('product_serial_access as psa', 'psa.slno', '=', 'product_serial.slno')
+            ->select(
+                'product_serial.slno as id',
+                'product_serial.slno as text',
+                'psa.hostname',
+                'psa.public_ip',
+            )
+            ->where('product_serial.type', 'Parent')
             ->limit(20)
             ->get();
-
+    
         return response()->json($serials);
     }
+    
 
     public function getHostIps(Request $request)
     {

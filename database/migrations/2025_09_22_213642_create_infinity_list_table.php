@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('id');
             $table->integer('uid')->nullable();
             $table->integer('reseller')->nullable();
-            $table->text('slnoc')->nullable();
+            $table->text('slno')->nullable();
             $table->string('mac_address', 50)->nullable();
             $table->string('s1_ip_address', 50)->nullable();
             $table->string('s1_default_port', 11)->nullable();
@@ -25,7 +25,7 @@ return new class extends Migration
             $table->string('firmware_upgrade', 11)->nullable();
             $table->string('firmware_server_path', 255)->nullable();
             $table->string('configuration_server_path', 255)->nullable();
-            $table->string('parent_slnoc', 11)->nullable();
+            $table->string('parent_slno', 11)->nullable();
             $table->string('s2_ip_address', 50)->nullable();
             $table->string('phone_type', 50)->nullable();
             $table->string('activation_date', 11)->nullable();

@@ -17,5 +17,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call(RolePermissionSeeder::class);
         $this->call(WorldSeeder::class);
+        $this->call(TemplatesTableSeeder::class);
+        $this->call(MacSeeder::class);
     }
 }

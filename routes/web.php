@@ -18,6 +18,10 @@ use App\Http\Controllers\MarketingController;
 use App\Http\Controllers\ProvisioningInfinity3065Controller;
 use App\Http\Controllers\ProvisioningInfinity5xxxController;
 use App\Models\ProvisioningInfinity3065;
+use App\Http\Controllers\VariableController;
+use App\Http\Controllers\DectProvisioningController;
+use App\Http\Controllers\DectExtensionController;
+use App\Http\Controllers\SipPhoneController;
 
 
 Route::get('test', function () {
@@ -211,8 +215,36 @@ Route::middleware(['auth','2fa'])->group(function () {
     Route::group(['prefix' => 'service_change', 'as' => 'service_change.'], function () {
         Route::get('/', [AdminController::class, 'serviceChangeIndex'])->name('index');
     });
-Route::group(['prefix' => 'provisioning', 'as' => 'provisioning.'], function () {
+    Route::group(['prefix' => 'provisioning', 'as' => 'provisioning.'], function () {
+
+
+
+        // // Infinity 5xxx Routes
+        // Route::get('/infinity5xxx', [ProvisioningInfinity5xxxController::class, 'infinity5'])->name('infinity5');
+        // Route::get('/infinity5xxx/data', [ProvisioningInfinity5xxxController::class, 'getData'])->name('infinity5xxx.data');
+
+          Route::get('/infinity5xxx', [ProvisioningInfinity5xxxController::class, 'infinity5'])->name('infinity5');
+    Route::get('/infinity5xxx/data', [ProvisioningInfinity5xxxController::class, 'getData'])->name('infinity5xxx.data');
+    
+    // New routes for edit/delete functionality
+    Route::get('/infinity5xxx/{id}/get', [ProvisioningInfinity5xxxController::class, 'getRecord'])->name('infinity5xxx.get');
+    Route::put('/infinity5xxx/{id}/update', [ProvisioningInfinity5xxxController::class, 'updateRecord'])->name('infinity5xxx.update');
+    Route::delete('/infinity5xxx/{id}/delete', [ProvisioningInfinity5xxxController::class, 'deleteRecord'])->name('infinity5xxx.delete');
+    // Multiple records operations
+    Route::get('/infinity5xxx/get-multiple', [ProvisioningInfinity5xxxController::class, 'getMultipleRecords'])->name('infinity5xxx.get.multiple');
+    Route::put('/infinity5xxx/update-multiple', [ProvisioningInfinity5xxxController::class, 'updateMultipleRecords'])->name('infinity5xxx.update.multiple');
+    Route::delete('/infinity5xxx/delete-multiple', [ProvisioningInfinity5xxxController::class, 'deleteMultiple'])->name('infinity5xxx.delete.multiple');
     Route::get('/', [ProvisioningController::class, 'index'])->name('index');
+
+    Route::get('/provisioning/infinity5xxx/child/{id}', [ProvisioningInfinity5xxxController::class, 'show_details'])
+    ->name('infinity5xxx.show');
+
+    Route::get('provisioning/infinity5xxx/download/{slno}', [ProvisioningInfinity5xxxController::class, 'download'])
+     ->name('infinity5xxx.download');
+
+
+
+
     Route::get('/infinity7xxx', [ProvisioningController::class, 'infinity7'])->name('infinity7');
     Route::get('/infinity7xxx/details/{slno}', [ProvisioningController::class, 'infinity7_details'])->name('infinity7_details');
 
@@ -228,11 +260,44 @@ Route::group(['prefix' => 'provisioning', 'as' => 'provisioning.'], function () 
     Route::get('/infinity3065/export', [ProvisioningInfinity3065Controller::class, 'export'])->name('infinity3065.export');
     Route::get('/get-serials', [ProvisioningInfinity3065Controller::class, 'getSerials'])->name('serials.get');
 
-    // Infinity 5xxx Routes
-    Route::get('/infinity5xxx', [ProvisioningInfinity5xxxController::class, 'infinity5'])->name('infinity5');
-    Route::get('/infinity5xxx/data', [ProvisioningInfinity5xxxController::class, 'getData'])->name('infinity5xxx.data');
+    // Dect Provisioning
 
-    
+    Route::get('/dect',[DectProvisioningController::class,'index'])->name('dect');
+    Route::post('/dect/push-multiple', [DectProvisioningController::class, 'pushMultiple'])->name('dect.pushMultiple');
+    Route::post('/dect/store', [DectProvisioningController::class, 'store'])->name('dect.store');
+    Route::post('/dect/bulk-delete', [DectProvisioningController::class, 'bulkDelete'])->name('dect.bulkDelete');
+    Route::get('/dect/dect-details/{id}', [DectProvisioningController::class, 'dect_details'])->name('dect.details');
+    Route::post('/dect/update/{id}', [DectProvisioningController::class, 'update'])->name('dect.update');
+    Route::post('/import-extensions', [DectExtensionController::class, 'import'])->name('extensions.import');
+    Route::post('/dect/update-extension-index', [DectProvisioningController::class, 'updateDectExtensionIndex'])
+    ->name('dect.updateExtensionIndex');
+    Route::post('/dect/delete-extensions', [DectProvisioningController::class, 'deleteExtensions'])
+    ->name('dect.deleteExtensions');
+
+     // SIP Phones
+
+     Route::get('/templates',[SipPhoneController::class,'index'])->name('templates');
+     Route::get('/templates/data', [SipPhoneController::class, 'getTemplatesData'])->name('templates.data');
+     Route::post('/templates/store', [SipPhoneController::class, 'template_store'])->name('templates.store');
+     Route::post('/templates/bulk-delete', [SipPhoneController::class, 'bulk_template_delete'])->name('templates.bulkDelete');
+     Route::get('/templates/download/{id}', [SipPhoneController::class, 'download_template'])->name('templates.download');
+     Route::get('/get-models/{vendor}', [SipPhoneController::class, 'getModelsByVendor']);
+     Route::get('/mac',[SipPhoneController::class,'mac_index'])->name('mac');
+     Route::get('/mac/data', [SipPhoneController::class, 'getMacData'])->name('mac.data');
+     Route::get('/extensions',[SipPhoneController::class,'extension_index'])->name('extensions');
+     Route::get('/extensions/data', [SipPhoneController::class, 'getExtensions'])->name('extensions.data');
+     Route::get('/extensions/mac-details/{macId}', [SipPhoneController::class, 'getMacDetails'])
+    ->name('extensions.macDetails');
+    Route::post('/extensions/update-mac', [SipPhoneController::class, 'update_mac'])
+    ->name('extensions.updateMac');
+
+
+
+
+
+
+
+
 
     // ✅ Live XML Route
     Route::get('/softphones-xml', function () {
@@ -266,4 +331,8 @@ Route::get('/provisioning/download-xml/{slno}', [ProvisioningInfinity3065Control
     Route::get('/states/{countryCode}', [LocationController::class, 'getStates'])->name('getStates');
     Route::get('/currencies/{countryCode}', [LocationController::class, 'getCurrencies'])->name('getCurrencies');
     Route::get('/cities/{countryCode}/{stateCode}', [LocationController::class, 'getCities'])->name('getCities');
+
+    Route::get('/variables/create', [VariableController::class, 'create'])->name('variables.create');
+    Route::post('/variables', [VariableController::class, 'store'])->name('variables.store');
+
 });

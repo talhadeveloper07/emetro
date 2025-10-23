@@ -62,7 +62,7 @@
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">Device ID</label>
-                            <input type="text" name="mac_address" value="{{ request('mac_address') }}" class="form-control">
+                            <input type="text" name="device_id" value="{{ request('device_id') }}" class="form-control">
                         </div>
                         <div class="col-md-3">
                             <label class="form-label">S1 IP</label>
@@ -302,7 +302,7 @@
                         d.org_id = $('select[name="org_id"]').val();
                         d.phone_type = $('input[name="phone_type"]').val();
                         d.phone_serial_number = $('input[name="phone_serial_number"]').val();
-                        d.mac_address = $('input[name="mac_address"]').val();
+                        d.device_id = $('input[name="device_id"]').val();
                         d.s1_ip = $('input[name="s1_ip"]').val();
                         d.s2_ip = $('input[name="s2_ip"]').val();
                         d.slno = $('input[name="slno"]').val();
@@ -315,7 +315,7 @@
                 columns: [
                     { data: 'checkbox', orderable: false, searchable: false },
                     { data: 'device_id' },
-                    { data: 'first_name' },
+                    { data: 'full_name' },
                     { data: 'serial_number' },
                     { data: 'device_type' },
                     { data: 's1_info' },
@@ -379,9 +379,9 @@
                 // Profile information
                 reviewHTML += '<div class="col-md-6"><h6>Profile Information:</h6><ul class="list-unstyled">';
                 reviewHTML += `<li><strong>UCX Serial Number:</strong> ${$('select[name="slno"]').val() || 'N/A'}</li>`;
-                reviewHTML += `<li><strong>S1 IP:</strong> ${$('input[name="s1_ip"]').val() || 'N/A'}</li>`;
+                reviewHTML += `<li><strong>S1 IP:</strong> ${$('#s1_ip').val() || 'N/A'}</li>`;
                 reviewHTML += `<li><strong>S1 Port:</strong> ${$('input[name="s1_port"]').val() || 'N/A'}</li>`;
-                reviewHTML += `<li><strong>S2 IP:</strong> ${$('input[name="s2_ip"]').val() || 'N/A'}</li>`;
+                reviewHTML += `<li><strong>S2 IP:</strong> ${$('#s2_ip').val() || 'N/A'}</li>`;
                 reviewHTML += '</ul></div>';
 
                 // User information
@@ -462,7 +462,7 @@
                         tomSelect.setValue(data.slno, true);
 
                         $('[name="form_mode"]').val('edit');
-                        $('[name="device_id"]').val(data.device_id);
+                        // $('[name="device_id"]').val(data.device_id);
                         $('[name="first_name"]').val(data.first_name);
                         $('[name="last_name"]').val(data.last_name);
                         $('[name="extension"]').val(data.extension);
