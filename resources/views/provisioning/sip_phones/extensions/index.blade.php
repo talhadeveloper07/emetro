@@ -167,16 +167,19 @@
                 <div class="col-12">
                     <div class="card">
                         <div class="table-responsive">
-                        <table id="macTable" class="table table-bordered table-striped">
+                        <table id="extension" class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th><input type="checkbox" id="selectAll"></th>
+                        <th>Extension</th>
                         <th>MAC</th>
                         <th>Vendor</th>
                         <th>Model</th>
-                        <th>Template Name</th>
-                        <th>Re-seller</th>
-                        <th>Modified Date</th>
+                        <th>Template</th>
+                        <th>UCX SN</th>
+                        <th>Site Name</th>
+                        <th>Server Address</th>
+                        <th>Last Push</th>
                     </tr>
                 </thead>
             </table>
@@ -263,46 +266,94 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script>
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+
+<script>
 $(document).ready(function() {
-    const table = $('#macTable').DataTable({
-    ajax: '{{ route('provisioning.mac.data') }}',
-    columns: [
-        {
-            data: 'id',
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-                return `<input type="checkbox" class="row-checkbox" value="${data}">`;
+    let table = $('#extension').DataTable({
+        ajax: "{{ route('provisioning.extensions.data') }}",
+        columns: [
+            { data: 'checkbox', orderable: false, searchable: false },
+            { data: 'extension' },
+            { data: 'mac_id' },
+            { data: 'vendor' },
+            { data: 'model' },
+            { data: 'template_name' },
+            { data: 'ucx_sn' },
+            { data: 'site_name' },
+            { data: 'server_address' },
+            { data: 'last_push' },
+        ],
+        order: [[1, 'asc']],
+        columnDefs: [
+            { targets: 0, className: 'text-center', width: '5%' },
+        ],
+        processing: true,
+        serverSide: false, // since you’re returning JSON manually
+        responsive: true,
+        createdRow: function(row, data) {
+            $(row).find('td:first').addClass('text-center');
+        },
+        searching: false,
+    lengthChange: false,
+    info: false,
+    });
+
+    // ✅ Select All checkbox
+    $('#selectAll').on('click', function() {
+        const isChecked = $(this).prop('checked');
+        $('.record-checkbox').prop('checked', isChecked);
+    });
+
+      // ✅ Handle MAC dropdown change dynamically
+
+$(document).on('change', '.mac-select', function () {
+    const macId = $(this).val();
+    const extensionId = $(this).data('extension');
+    const $row = $(this).closest('tr');
+    const row = table.row($row);
+
+    if (!row.node()) return;
+
+    $.ajax({
+        url: "{{ route('provisioning.extensions.updateMac') }}",
+        method: "POST",
+        data: {
+            _token: '{{ csrf_token() }}',
+            mac_id: macId,
+            extension_id: extensionId,
+        },
+        success: function (res) {
+            if (res.success) {
+                // ✅ Update the row instantly
+                const rowData = row.data();
+                rowData.vendor = res.vendor;
+                rowData.model = res.model;
+                rowData.template_name = res.template_name;
+                row.data(rowData).invalidate().draw(false);
+
+                // ✅ Keep the MAC selected
+                setTimeout(() => {
+                    $(`#mac_select_${extensionId}`).val(macId);
+                }, 100);
+
+                // ✅ Highlight success
+                $row.addClass('table-success');
+                setTimeout(() => $row.removeClass('table-success'), 800);
             }
         },
-        { data: 'mac_name', title: 'MAC' },
-        { data: 'vendor', title: 'Vendor' },
-        { data: 'model', title: 'Model' },
-        { data: 'template_name', title: 'Template' },
-        { data: 're_seller', title: 'Reseller' },
-        { data: 'modified_date', title: 'Modified Date' },
-    ],
-    paging: true,
-    searching: false,
-    lengthChange: false,
-    info: false
+        error: function (xhr) {
+            console.error(xhr.responseText);
+        },
+    });
 });
 
-// ✅ Select All functionality
-$('#selectAll').on('change', function () {
-    const isChecked = $(this).is(':checked');
-    $('.row-checkbox').prop('checked', isChecked);
-});
 
-// ✅ Keep Select All synced if user manually toggles checkboxes
-$('#macTable').on('change', '.row-checkbox', function () {
-    const all = $('.row-checkbox').length;
-    const checked = $('.row-checkbox:checked').length;
-    $('#selectAll').prop('checked', all === checked);
-});
 
 });
 </script>
+
 @endsection
 @endsection

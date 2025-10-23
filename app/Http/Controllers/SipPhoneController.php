@@ -9,6 +9,7 @@ use App\Models\Mac;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str; 
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\DB;
 
 class SipPhoneController extends Controller
 {
@@ -225,6 +226,120 @@ class SipPhoneController extends Controller
         $filename = basename($template->file_location);
         return Storage::disk('local')->download($template->file_location, $filename);
     }
+
+    public function getExtensions(Request $request)
+    {
+        $query = DB::table('extension')
+            ->leftJoin('product_serial', 'extension.slno', '=', 'product_serial.slno')
+            ->leftJoin('product_serial_parent_child', 'product_serial.slno', '=', 'product_serial_parent_child.slno')
+            ->leftJoin('mac', 'mac.id', '=', 'extension.mac')
+            ->select(
+                'extension.id as extension_id',
+                'extension.extension',
+                'extension.mac as mac_selected_id',
+                'mac.id as mac_id',
+                'mac.vendor',
+                'mac.model',
+                'mac.template_name',
+                'extension.slno as ucx_sn',
+                'product_serial_parent_child.site_name',
+                'extension.server_address',
+                'extension.port',
+                'extension.last_push'
+            )
+            ->orderBy('extension.id', 'desc')
+            ->get();
+    
+        return response()->json([
+            'data' => $query->map(function ($item) {
+                return [
+                    'checkbox' => '<input type="checkbox" class="record-checkbox" value="' . $item->extension_id . '">',
+                    'extension' => e($item->extension),
+                    'mac_id' => $this->macSelect($item->mac_selected_id, $item->extension_id),
+                    'vendor' => e($item->vendor ?? ''),
+                    'model' => e($item->model ?? ''),
+                    'template_name' => e($item->template_name ?? ''),
+                    'ucx_sn' => e($item->ucx_sn ?? ''),
+                    'site_name' => e($item->site_name ?? 'N/A'),
+                    'server_address' => e($item->server_address ?? ''),
+                    'last_push' => $item->last_push ? date('Y-m-d', strtotime($item->last_push)) : '-',
+                ];
+            }),
+        ]);
+    }
+    
+    private function macSelect($selectedMacId = null, $extensionId)
+    {
+        $macs = DB::table('mac')->select('id', 'mac')->get();
+        $html = '<select name="mac" id="mac_select_' . $extensionId . '" 
+                         class="form-select form-select-sm mac-select" 
+                         data-extension="' . $extensionId . '" style="width:100%;">';
+        $html .= '<option value=""></option>';
+    
+        foreach ($macs as $mac) {
+            $selected = ($selectedMacId == $mac->id) ? 'selected' : '';
+            $html .= '<option value="' . $mac->id . '" ' . $selected . '>' . e($mac->mac) . '</option>';
+        }
+    
+        $html .= '</select>';
+    
+        return $html;
+    }
+    public function getMacDetails($macId)
+    {
+        $mac = DB::table('mac')
+            ->select('vendor', 'model', 'template_name')
+            ->where('id', $macId)
+            ->first();
+
+        if (!$mac) {
+            return response()->json(['error' => 'MAC not found'], 404);
+        }
+
+        return response()->json([
+            'vendor' => $mac->vendor ?? '',
+            'model' => $mac->model ?? '',
+            'template_name' => $mac->template_name ?? '',
+        ]);
+    }
+
+    public function update_mac(Request $request)
+    {
+        $request->validate([
+            'extension_id' => 'required|integer',
+            'mac_id' => 'nullable|integer',
+        ]);
+
+        try {
+            DB::table('extension')
+                ->where('id', $request->extension_id)
+                ->update([
+                    'mac' => $request->mac_id,
+                    'updated_at' => now(),
+                ]);
+
+            // Fetch MAC info to return to JS
+            $mac = DB::table('mac')
+                ->where('id', $request->mac_id)
+                ->select('vendor', 'model', 'template_name')
+                ->first();
+
+            return response()->json([
+                'success' => true,
+                'vendor' => $mac->vendor ?? '',
+                'model' => $mac->model ?? '',
+                'template_name' => $mac->template_name ?? '',
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    
 
 
 
