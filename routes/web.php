@@ -278,10 +278,21 @@ Route::middleware(['auth','2fa'])->group(function () {
 
      Route::get('/templates',[SipPhoneController::class,'index'])->name('templates');
      Route::get('/templates/data', [SipPhoneController::class, 'getTemplatesData'])->name('templates.data');
+     Route::post('/templates/store', [SipPhoneController::class, 'template_store'])->name('templates.store');
+     Route::post('/templates/bulk-delete', [SipPhoneController::class, 'bulk_template_delete'])->name('templates.bulkDelete');
+     Route::get('/templates/download/{id}', [SipPhoneController::class, 'download_template'])->name('templates.download');
      Route::get('/get-models/{vendor}', [SipPhoneController::class, 'getModelsByVendor']);
      Route::get('/mac',[SipPhoneController::class,'mac_index'])->name('mac');
      Route::get('/mac/data', [SipPhoneController::class, 'getMacData'])->name('mac.data');
      Route::get('/extensions',[SipPhoneController::class,'extension_index'])->name('extensions');
+     Route::get('/extensions/data', [SipPhoneController::class, 'getExtensions'])->name('extensions.data');
+     Route::get('/extensions/mac-details/{macId}', [SipPhoneController::class, 'getMacDetails'])
+    ->name('extensions.macDetails');
+    Route::post('/extensions/update-mac', [SipPhoneController::class, 'update_mac'])
+    ->name('extensions.updateMac');
+
+
+
 
 
 

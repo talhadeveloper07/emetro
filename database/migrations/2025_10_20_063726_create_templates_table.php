@@ -19,9 +19,10 @@ return new class extends Migration
             $table->string('re_seller', 255)->nullable();
             $table->date('modified_date')->nullable();
             $table->string('file_location', 255)->nullable();
-            $table->integer('file_id');
-            $table->string('file_name', 255);
+            $table->integer('file_id')->nullable();
+            $table->string('file_name', 255)->nullable();
             $table->boolean('is_default')->nullable()->default(0);
+            $table->timestamps();
         });
     }
 
