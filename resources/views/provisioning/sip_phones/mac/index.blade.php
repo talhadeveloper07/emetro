@@ -100,53 +100,46 @@
             <div class="row row-deck row-cards">
                 <div class="col-12">
                     <div class="card">
-                        <form id="filterForm">
-                            <div class="card-body">
-                                <div class="row row-cards">
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">Organization</label>
-                                            <select name="reseller" class="form-control select2">
-                                                <option value="">All</option>
-                                                @foreach($organizations as $org)
-                                                    <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
-                                                        {{ $org->name }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3 col-sm-6">
-                                        <label class="form-label">Vendor</label>
-                                            <select id="vendor" name="vendor" class="form-control">
-                                                    <option value="">Select Vendor</option>
-                                                    <option value="Yealink">Yealink</option>
-                                                    <option value="Grandstream">Grandstream</option>
-                                                    <option value="Fanvil">Fanvil</option>
-                                                    <option value="Snom">Snom</option>
-                                                    <option value="Polycom">Polycom</option>
-                                                </select>
-                                    </div>
-                                    <div class="col-sm-6 col-md-3">
-                                        <label class="form-label">Model</label>
-                                            <select id="model" name="model" class="form-control">
-                                                <option value="">Select Model</option>
-                                            </select>
-                                    </div>
-                                    <div class="col-sm-6 col-md-3">
-                                        <div class="mb-3">
-                                            <label class="form-label">Template Name</label>
-                                            <input type="text" name="template_name" class="form-control">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-12 col-md-12 text-end">
-                                        <button type="submit" class="btn btn-primary">Filter</button>
-                                        <button type="button" id="clearFilters" class="btn btn-secondary">Clear
-                                            Filter</button>
-                                    </div>
+                       <form id="filterForm">
+                        <div class="card-body">
+                            <div class="row row-cards">
+                                <div class="col-sm-6 col-md-3">
+                                    <label class="form-label">Organization</label>
+                                    <select name="reseller" class="form-control select2">
+                                        <option value="">All</option>
+                                        @foreach($organizations as $org)
+                                            <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3 col-sm-6">
+                                    <label class="form-label">Vendor</label>
+                                    <select id="vendor" name="vendor" class="form-control">
+                                        <option value="">Select Vendor</option>
+                                        <option value="Yealink">Yealink</option>
+                                        <option value="Grandstream">Grandstream</option>
+                                        <option value="Fanvil">Fanvil</option>
+                                        <option value="Snom">Snom</option>
+                                        <option value="Polycom">Polycom</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <label class="form-label">Model</label>
+                                    <select id="model" name="model" class="form-control">
+                                        <option value="">Select Model</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-6 col-md-3">
+                                    <label class="form-label">Template Name</label>
+                                    <input type="text" name="template_name" class="form-control">
+                                </div>
+                                <div class="col-sm-12 col-md-12 text-end mt-3">
+                                    <button type="submit" class="btn btn-primary">Filter</button>
+                                    <button type="button" id="clearFilters" class="btn btn-secondary">Clear</button>
                                 </div>
                             </div>
-                        </form>
+                        </div>
+                    </form>
                     </div>
                 </div>
 
@@ -154,25 +147,25 @@
                     <div class="card">
                         <div class="table-responsive">
                         <table id="macTable" class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th><input type="checkbox" id="selectAll"></th>
-                        <th>MAC</th>
-                        <th>Vendor</th>
-                        <th>Model</th>
-                        <th>Template Name</th>
-                        <th>Re-seller</th>
-                        <th>Modified Date</th>
-                    </tr>
-                </thead>
-            </table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="selectAll"></th>
+                                    <th>MAC</th>
+                                    <th>Vendor</th>
+                                    <th>Model</th>
+                                    <th>Template Name</th>
+                                    <th>Re-seller</th>
+                                    <th>Modified Date</th>
+                                </tr>
+                            </thead>
+                        </table>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row mt-2">
                 <div class="col-md-12 text-end">
-                    <button class="btn btn-danger" id="deleteSelectedBtn">Delete</button>
+                    <button class="btn btn-danger" id="deleteSelected">Delete</button>
                 </div>
             </div>
 
@@ -226,7 +219,7 @@
                             <h2 class="text-lime mb-0">Add MAC</h2>
                         </div>
                         <div class="card-body">
-                                <form id="deviceForm">
+                                <form id="deviceForm" method="POST" action="{{ route('provisioning.mac.store') }}">
                                     @csrf
                                     <div class="row row-cards">
                                         <div class="row pt-3">
@@ -291,44 +284,141 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    <script>
-$(document).ready(function() {
-    const table = $('#macTable').DataTable({
-    ajax: '{{ route('provisioning.mac.data') }}',
-    columns: [
-        {
-            data: 'id',
-            orderable: false,
-            searchable: false,
-            render: function (data, type, row) {
-                return `<input type="checkbox" class="row-checkbox" value="${data}">`;
+
+<script>
+$(document).ready(function () {
+    $('#addMacForm').on('submit', function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: "{{ route('provisioning.mac.store') }}",
+            type: "POST",
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.success) {
+                    // reset form
+                    $('#addMacForm')[0].reset();
+
+                    // reload datatable if exists
+                    if ($.fn.DataTable.isDataTable('#macTable')) {
+                        $('#macTable').DataTable().ajax.reload(null, false);
+                    }
+                    $('#successToast .toast-body').text(response.message);
+                    new bootstrap.Toast(document.getElementById('successToast')).show();
+                }
+            },
+            error: function (xhr) {
+                let message = "Something went wrong!";
+                if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    let errors = xhr.responseJSON.errors;
+                    message = Object.values(errors).map(arr => arr.join(' ')).join("\n");
+                }
+                $('#errorToast .toast-body').text(message);
+                new bootstrap.Toast(document.getElementById('errorToast')).show();
             }
+        });
+    });
+});
+</script>
+
+<script>
+$(document).ready(function() {
+
+     $.ajaxSetup({
+        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+    });
+
+     const table = $('#macTable').DataTable({
+        ajax: {
+            url: '{{ route("provisioning.mac.data") }}',
+            data: d => {
+                d.vendor = $('#vendor').val();
+                d.model = $('#model').val();
+                d.reseller = $('select[name="reseller"]').val();
+                d.template_name = $('input[name="template_name"]').val();
+            },
+            dataSrc: json => Array.isArray(json) ? json : (json.data ?? [])
         },
-        { data: 'mac_name', title: 'MAC' },
-        { data: 'vendor', title: 'Vendor' },
-        { data: 'model', title: 'Model' },
-        { data: 'template_name', title: 'Template' },
-        { data: 're_seller', title: 'Reseller' },
-        { data: 'modified_date', title: 'Modified Date' },
-    ],
-    paging: true,
-    searching: false,
-    lengthChange: false,
-    info: false
-});
+        columns: [
+            { data: 'id', orderable: false, render: data => `<input type="checkbox" class="row-checkbox" value="${data}">` },
+            { data: 'mac_name' },
+            { data: 'vendor' },
+            { data: 'model' },
+            { data: 'template_name' },
+            { data: 're_seller' },
+            { data: 'modified_date' },
+   ],
+        paging: true,
+        searching: false,
+        lengthChange: false,
+        info: false
+    });
 
-// ✅ Select All functionality
-$('#selectAll').on('change', function () {
-    const isChecked = $(this).is(':checked');
-    $('.row-checkbox').prop('checked', isChecked);
-});
+     table.on('processing.dt', (e, settings, processing) => {
+        if (processing) $('#loader_overlay').fadeIn(100);
+        else $('#loader_overlay').fadeOut(300);
+    });
 
-// ✅ Keep Select All synced if user manually toggles checkboxes
-$('#macTable').on('change', '.row-checkbox', function () {
-    const all = $('.row-checkbox').length;
-    const checked = $('.row-checkbox:checked').length;
-    $('#selectAll').prop('checked', all === checked);
-});
+// ✅ Delegated event to handle "Select All" properly
+    $(document).on('change', '#selectAll', function () {
+        const checked = $(this).prop('checked');
+        $('#macTable').find('.row-checkbox').prop('checked', checked);
+    });
+
+     $('#filterForm').on('submit', e => {
+        e.preventDefault();
+        $('#loader_overlay').fadeIn(100);
+        table.ajax.reload(() => $('#loader_overlay').fadeOut(300));
+    });
+
+    // ✅ Clear filters
+    $('#clearFilters').on('click', () => {
+        $('#filterForm')[0].reset();
+        $('#model').html('<option value="">Select Model</option>');
+        $('#loader_overlay').fadeIn(100);
+        table.ajax.reload(() => $('#loader_overlay').fadeOut(300));
+    });
+
+    // ✅ Bulk Delete Button Click
+    $(document).on('click', '#deleteSelected', function () {
+        let selectedIds = [];
+        $('#macTable').find('.row-checkbox:checked').each(function () {
+            selectedIds.push($(this).val());
+        });
+
+        if (selectedIds.length === 0) {
+            Swal.fire('No Selection', 'Please select at least one record.', 'warning');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Selected records will be permanently deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete!',
+            cancelButtonText: 'Cancel',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "{{ route('provisioning.mac.bulkDelete') }}",
+                    method: "POST",
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ids: selectedIds
+                    },
+                    success: function (response) {
+                        Swal.fire('Deleted!', response.message, 'success');
+                        table.ajax.reload(null, false);
+                        $('#selectAll').prop('checked', false); // Uncheck after reload
+                    },
+                    error: function (xhr) {
+                        Swal.fire('Error', xhr.responseJSON.message || 'Something went wrong.', 'error');
+                    }
+                });
+            }
+        });
+    });
 
 $(document).on('change', '.template-select', function () {
     const macId = $(this).data('mac-id');
