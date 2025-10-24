@@ -124,39 +124,104 @@ class SipPhoneController extends Controller
         ]);
     }
 
-    public function getMacData()
+  public function getMacData(Request $request)
+{
+    $query = Mac::query()
+        ->leftJoin('organizations', 'organizations.id', '=', 'mac.re_seller') // 👈 Join reseller name
+        ->select(
+            'mac.id',
+            'mac.mac as mac_name',
+            'mac.vendor',
+            'mac.model',
+            'mac.template_name',
+            'mac.re_seller',
+            'organizations.name as reseller_name', // 👈 Get readable org name
+            'mac.modified_date'
+        );
+
+    // ✅ Filters
+    if ($request->vendor) {
+        $query->where('mac.vendor', $request->vendor);
+    }
+
+    if ($request->model) {
+        $query->where('mac.model', $request->model);
+    }
+
+    if ($request->template_name) {
+        $query->where('mac.template_name', 'like', "%{$request->template_name}%");
+    }
+
+    $macs = $query->get();
+
+    $data = $macs->map(function ($item) {
+        $templates = $this->getTemplates($item->vendor, $item->model);
+
+        // Build dropdown HTML for Template select
+        $templateSelect = '<select name="template_name" class="form-select form-select-sm template-select" data-mac-id="' . $item->id . '" style="width:100%;">';
+        $templateSelect .= '<option value="">Select Template</option>';
+
+        foreach ($templates as $template) {
+            $selected = ($item->template_name === $template->template_name) ? 'selected' : '';
+            $templateSelect .= '<option value="' . e($template->template_name) . '" ' . $selected . '>' . e($template->template_name) . '</option>';
+        }
+
+        $templateSelect .= '</select>';
+
+        return [
+            'checkbox' => '<input type="checkbox" class="record-checkbox" value="' . $item->id . '">',
+            'id' => $item->id,
+            'mac_name' => e($item->mac_name),
+            'vendor' => e($item->vendor),
+            'model' => e($item->model),
+            'template_name' => $templateSelect,
+            're_seller' => e($item->reseller_name ?? 'N/A'), // 👈 Show org name instead of ID
+            'modified_date' => $item->modified_date ? date('Y-m-d', strtotime($item->modified_date)) : '-',
+        ];
+    });
+
+    return response()->json(['data' => $data]);
+}
+
+    public function store_mac(Request $request)
     {
-        $macs = DB::table('mac')
-            ->select('id', 'mac as mac_name', 'vendor', 'model', 'template_name', 're_seller', 'modified_date')
-            ->get();
-    
-        $data = $macs->map(function ($item) {
-            $templates = $this->getTemplates($item->vendor, $item->model);
-    
-            // Build dropdown HTML
-            $templateSelect = '<select name="template_name" class="form-select form-select-sm template-select" data-mac-id="' . $item->id . '" style="width:100%;">';
-            $templateSelect .= '<option value="">Select Template</option>';
-    
-            foreach ($templates as $template) {
-                $selected = ($item->template_name === $template->template_name) ? 'selected' : '';
-                $templateSelect .= '<option value="' . e($template->template_name) . '" ' . $selected . '>' . e($template->template_name) . '</option>';
-            }
-    
-            $templateSelect .= '</select>';
-    
-            return [
-                'checkbox' => '<input type="checkbox" class="record-checkbox" value="'.$item->id.'">',
-                'id' => $item->id,
-                'mac_name' => e($item->mac_name),
-                'vendor' => e($item->vendor),
-                'model' => e($item->model),
-                'template_name' => $templateSelect, // 👈 dropdown instead of plain text
-                're_seller' => e($item->re_seller),
-                'modified_date' => $item->modified_date ? date('Y-m-d', strtotime($item->modified_date)) : '-',
-            ];
-        });
-    
-        return response()->json(['data' => $data]);
+
+        $validated = $request->validate([
+            'reseller' => 'nullable|integer',
+            'mac' => 'required|string|max:255',
+            'vendor' => 'nullable|string|max:255',
+            'model' => 'nullable|string|max:255',
+            'template_name' => 'nullable|string|max:255',
+        ]);
+
+
+        Mac::create([
+            'mac' => $validated['mac'],
+            'vendor' => $validated['vendor'] ?? null,
+            'model' => $validated['model'] ?? null,
+            'template_name' => $validated['template_name'] ?? null,
+            're_seller' => $validated['reseller'] ?? null,
+            'modified_date' => now(),
+        ]);
+
+
+        return response()->json([
+            'success' => true,
+            'message' => 'MAC address added successfully!'
+        ]);
+    }
+
+    public function mac_bulk_delete(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json(['message' => 'No items selected'], 400);
+        }
+
+        Mac::whereIn('id', $ids)->delete();
+
+        return response()->json(['message' => 'Selected records deleted successfully.']);
     }
 
     private function getTemplates($vendor, $model)
@@ -168,21 +233,21 @@ class SipPhoneController extends Controller
     }
 
     public function update_mac_template(Request $request)
-{
-    $request->validate([
-        'mac_id' => 'required|integer',
-        'template_name' => 'nullable|string',
-    ]);
-
-    DB::table('mac')
-        ->where('id', $request->mac_id)
-        ->update([
-            'template_name' => $request->template_name,
-            'modified_date' => now(),
+    {
+        $request->validate([
+            'mac_id' => 'required|integer',
+            'template_name' => 'nullable|string',
         ]);
 
-    return response()->json(['success' => true]);
-}
+        DB::table('mac')
+            ->where('id', $request->mac_id)
+            ->update([
+                'template_name' => $request->template_name,
+                'modified_date' => now(),
+            ]);
+
+        return response()->json(['success' => true]);
+    }
 
     
     public function template_store(Request $request)
