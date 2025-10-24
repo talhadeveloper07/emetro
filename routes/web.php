@@ -284,6 +284,12 @@ Route::middleware(['auth','2fa'])->group(function () {
      Route::get('/get-models/{vendor}', [SipPhoneController::class, 'getModelsByVendor']);
      Route::get('/mac',[SipPhoneController::class,'mac_index'])->name('mac');
      Route::get('/mac/data', [SipPhoneController::class, 'getMacData'])->name('mac.data');
+     Route::post('/mac/update-template', [SipPhoneController::class, 'update_mac_template'])
+    ->name('mac.updateTemplate');
+    Route::post('/mac/bulk-delete', [SipPhoneController::class, 'mac_bulk_delete'])->name('mac.bulkDelete');
+    Route::post('/mac/store', [SipPhoneController::class, 'store_mac'])->name('mac.store');
+    Route::post('/mac/import', [SipPhoneController::class, 'import_mac'])->name('mac.import');
+
      Route::get('/extensions',[SipPhoneController::class,'extension_index'])->name('extensions');
      Route::get('/extensions/data', [SipPhoneController::class, 'getExtensions'])->name('extensions.data');
      Route::get('/extensions/mac-details/{macId}', [SipPhoneController::class, 'getMacDetails'])
