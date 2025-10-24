@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str; 
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+
 
 class SipPhoneController extends Controller
 {
@@ -210,6 +212,63 @@ class SipPhoneController extends Controller
             'message' => 'MAC address added successfully!'
         ]);
     }
+
+
+public function import_mac(Request $request)
+{
+    $validator = Validator::make($request->all(), [
+        'reseller' => 'nullable|integer',
+        'mac_file' => 'required|file|mimes:csv,txt|max:2048',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
+    }
+
+    $file = $request->file('mac_file');
+    $handle = fopen($file->getRealPath(), 'r');
+    $header = fgetcsv($handle);
+
+    // Required columns
+    $required = ['mac', 'vendor', 'model', 'template_name'];
+    $header = array_map('strtolower', $header);
+
+    // Check header match
+    foreach ($required as $column) {
+        if (!in_array($column, $header)) {
+            return response()->json([
+                'success' => false,
+                'message' => "Invalid CSV header. Required columns: mac, vendor, model, template_name"
+            ], 422);
+        }
+    }
+
+    $count = 0;
+
+    while (($row = fgetcsv($handle)) !== false) {
+        $data = array_combine($header, $row);
+
+        if (!empty($data['mac'])) {
+            Mac::create([
+                'mac' => $data['mac'],
+                'vendor' => $data['vendor'] ?? null,
+                'model' => $data['model'] ?? null,
+                'template_name' => $data['template_name'] ?? null,
+                're_seller' => $request->reseller ?? null,
+                'modified_date' => now(),
+            ]);
+            $count++;
+        }
+    }
+
+    fclose($handle);
+
+    return response()->json([
+        'success' => true,
+        'message' => "Successfully imported {$count} MAC addresses."
+    ]);
+}
+
 
     public function mac_bulk_delete(Request $request)
     {

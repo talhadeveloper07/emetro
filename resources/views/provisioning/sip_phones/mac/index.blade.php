@@ -43,24 +43,22 @@
                                 <path d="M15 6l-6 6l6 6" />
                             </svg></a> MAC
                     </h2>
-                            <ul class="nav nav-tabs card-header-tabs nav-fill my-3" data-bs-toggle="tabs" role="tablist">
-                                <li class="nav-item" role="presentation">
-                                    <a  href="{{ route('provisioning.templates') }}"  class="nav-link" 
-                                        aria-selected="true" role="tab">Templates</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a  href="{{ route('provisioning.mac') }}"  class="nav-link active"  aria-selected="false"
-                                        >MAC</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="{{ route('provisioning.extensions') }}" class="nav-link"  aria-selected="false"
-                                        >Extensions</a>
-                                </li>
-                                <li class="nav-item" role="presentation">
-                                    <a href="#" class="nav-link"  aria-selected="false"
-                                       >Help</a>
-                                </li>
-                            </ul>
+                    <ul class="nav nav-tabs card-header-tabs nav-fill my-3" data-bs-toggle="tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a href="{{ route('provisioning.templates') }}" class="nav-link" aria-selected="true"
+                                role="tab">Templates</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="{{ route('provisioning.mac') }}" class="nav-link active" aria-selected="false">MAC</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="{{ route('provisioning.extensions') }}" class="nav-link"
+                                aria-selected="false">Extensions</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="#" class="nav-link" aria-selected="false">Help</a>
+                        </li>
+                    </ul>
                 </div>
                 <!-- Page title actions -->
                 <div class="col-auto ms-auto d-print-none">
@@ -100,65 +98,65 @@
             <div class="row row-deck row-cards">
                 <div class="col-12">
                     <div class="card">
-                       <form id="filterForm">
-                        <div class="card-body">
-                            <div class="row row-cards">
-                                <div class="col-sm-6 col-md-3">
-                                    <label class="form-label">Organization</label>
-                                    <select name="reseller" class="form-control select2">
-                                        <option value="">All</option>
-                                        @foreach($organizations as $org)
-                                            <option value="{{ $org->id }}">{{ $org->name }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <div class="col-md-3 col-sm-6">
-                                    <label class="form-label">Vendor</label>
-                                    <select id="vendor" name="vendor" class="form-control">
-                                        <option value="">Select Vendor</option>
-                                        <option value="Yealink">Yealink</option>
-                                        <option value="Grandstream">Grandstream</option>
-                                        <option value="Fanvil">Fanvil</option>
-                                        <option value="Snom">Snom</option>
-                                        <option value="Polycom">Polycom</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 col-md-3">
-                                    <label class="form-label">Model</label>
-                                    <select id="model" name="model" class="form-control">
-                                        <option value="">Select Model</option>
-                                    </select>
-                                </div>
-                                <div class="col-sm-6 col-md-3">
-                                    <label class="form-label">Template Name</label>
-                                    <input type="text" name="template_name" class="form-control">
-                                </div>
-                                <div class="col-sm-12 col-md-12 text-end mt-3">
-                                    <button type="submit" class="btn btn-primary">Filter</button>
-                                    <button type="button" id="clearFilters" class="btn btn-secondary">Clear</button>
+                        <form id="filterForm">
+                            <div class="card-body">
+                                <div class="row row-cards">
+                                    <div class="col-sm-6 col-md-3">
+                                        <label class="form-label">Organization</label>
+                                        <select name="reseller" class="form-control select2">
+                                            <option value="">All</option>
+                                            @foreach($organizations as $org)
+                                                <option value="{{ $org->id }}">{{ $org->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3 col-sm-6">
+                                        <label class="form-label">Vendor</label>
+                                        <select id="vendor" name="vendor" class="form-control">
+                                            <option value="">Select Vendor</option>
+                                            <option value="Yealink">Yealink</option>
+                                            <option value="Grandstream">Grandstream</option>
+                                            <option value="Fanvil">Fanvil</option>
+                                            <option value="Snom">Snom</option>
+                                            <option value="Polycom">Polycom</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label class="form-label">Model</label>
+                                        <select id="model" name="model" class="form-control">
+                                            <option value="">Select Model</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-6 col-md-3">
+                                        <label class="form-label">Template Name</label>
+                                        <input type="text" name="template_name" class="form-control">
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 text-end mt-3">
+                                        <button type="submit" class="btn btn-primary">Filter</button>
+                                        <button type="button" id="clearFilters" class="btn btn-secondary">Clear</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
                     </div>
                 </div>
 
                 <div class="col-12">
                     <div class="card">
                         <div class="table-responsive">
-                        <table id="macTable" class="table table-bordered table-striped">
-                            <thead>
-                                <tr>
-                                    <th><input type="checkbox" id="selectAll"></th>
-                                    <th>MAC</th>
-                                    <th>Vendor</th>
-                                    <th>Model</th>
-                                    <th>Template Name</th>
-                                    <th>Re-seller</th>
-                                    <th>Modified Date</th>
-                                </tr>
-                            </thead>
-                        </table>
+                            <table id="macTable" class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th><input type="checkbox" id="selectAll"></th>
+                                        <th>MAC</th>
+                                        <th>Vendor</th>
+                                        <th>Model</th>
+                                        <th>Template Name</th>
+                                        <th>Re-seller</th>
+                                        <th>Modified Date</th>
+                                    </tr>
+                                </thead>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -176,36 +174,33 @@
                             <h2 class="text-lime mb-0">Import MAC</h2>
                         </div>
                         <div class="card-body">
-                                <form id="deviceForm">
-                                    @csrf
-                                    <div class="row row-cards">
-                                        <div class="col-sm-6 col-md-3">
-                                            <div class="mb-3">
-                                                <label class="form-label">Organization</label>
-                                                <select name="reseller" class="form-select select2">
-                                                    <option value="">All</option>
-                                                    @foreach($organizations as $org)
-                                                        <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
-                                                            {{ $org->name }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                       <div class="row">
-                                            <div class="col-sm-6 col-md-3">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Select CSV File for Upload</label>
-                                                    <input type="file" name="mac_file" class="form-control">
-                                                    <span style="font-size:10px;">Supported fields in CSV file: MAC, Vendor, Model, Template</span>
-                                                </div>
-                                            </div>
-                                       </div>
-                                        <div class="col-sm-12 col-md-12 text-end">
-                                            <button type="submit" class="btn btn-primary">Upload</button>
-                                        </div>
-                                    </div>
-                                </form>
+                        <form id="deviceForm" enctype="multipart/form-data" method="POST">
+    @csrf
+    <div class="row row-cards">
+        <div class="col-sm-6 col-md-3">
+            <div class="mb-3">
+                <label class="form-label">Organization</label>
+                <select name="reseller" class="form-select select2">
+                    <option value="">All</option>
+                    @foreach($organizations as $org)
+                        <option value="{{ $org->id }}">{{ $org->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-3">
+            <div class="mb-3">
+                <label class="form-label">Select CSV File for Upload</label>
+                <input type="file" name="mac_file" accept=".csv" class="form-control" required>
+                <span style="font-size:10px;">Supported fields: mac, vendor, model, template_name</span>
+            </div>
+        </div>
+        <div class="col-sm-12 text-end">
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </div>
+    </div>
+</form>
+
                         </div>
 
                     </div>
@@ -219,59 +214,59 @@
                             <h2 class="text-lime mb-0">Add MAC</h2>
                         </div>
                         <div class="card-body">
-                                <form id="deviceForm" method="POST" action="{{ route('provisioning.mac.store') }}">
-                                    @csrf
-                                    <div class="row row-cards">
-                                        <div class="row pt-3">
-                                            <div class="col-sm-6 col-md-3">
-                                                <div class="mb-3">
-                                                    <label class="form-label">Organization</label>
-                                                    <select name="reseller" class="form-select select2">
-                                                        <option value="">All</option>
-                                                        @foreach($organizations as $org)
-                                                            <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
-                                                                {{ $org->name }}
-                                                            </option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 col-md-2">
+                            <form id="addMacForm" method="POST" action="{{ route('provisioning.mac.store') }}">
+                                @csrf
+                                <div class="row row-cards">
+                                    <div class="row pt-3">
+                                        <div class="col-sm-6 col-md-3">
                                             <div class="mb-3">
-                                                <label class="form-label">MAC</label>
-                                                <input type="text" name="mac" class="form-control">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 col-md-2">
-                                            <label class="form-label">Vendor</label>
-                                            <select name="vendor" class="form-control select2">
-                                                <option value="">All</option>
-                                                <option value="Yealink">Yealink</option>
-                                                <option value="Grandstream">Grandstream</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-sm-6 col-md-2">
-                                            <div class="mb-3">
-                                                <label class="form-label">Model</label>
-                                                <select id="edit-status" name="model" class="form-control form-select">
-                                                    <option value="" selected="selected">(Select Model)</option>
-                                                    <option value="AP500D/AP510D">AP500D/AP510D</option>
-                                                    <option value="AP500M/AP510M">AP500M/AP510M</option>
+                                                <label class="form-label">Organization</label>
+                                                <select name="reseller" class="form-select select2">
+                                                    <option value="">All</option>
+                                                    @foreach($organizations as $org)
+                                                        <option value="{{ $org->id }}" {{ request('reseller') == $org->id ? 'selected' : '' }}>
+                                                            {{ $org->name }}
+                                                        </option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>
-                                        <div class="col-sm-6 col-md-2">
-                                            <div class="mb-3">
-                                                <label class="form-label">Template</label>
-                                                <input type="text" name="template_name" class="form-control">
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-12 col-md-12 text-end">
-                                            <button type="submit" class="btn btn-primary">Upload</button>
+                                    </div>
+                                    <div class="col-sm-6 col-md-2">
+                                        <div class="mb-3">
+                                            <label class="form-label">MAC</label>
+                                            <input type="text" name="mac" class="form-control">
                                         </div>
                                     </div>
-                                </form>
+                                    <div class="col-sm-6 col-md-2">
+                                        <label class="form-label">Vendor</label>
+                                        <select name="vendor" class="form-control select2">
+                                            <option value="">All</option>
+                                            <option value="Yealink">Yealink</option>
+                                            <option value="Grandstream">Grandstream</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-6 col-md-2">
+                                        <div class="mb-3">
+                                            <label class="form-label">Model</label>
+                                            <select id="edit-status" name="model" class="form-control form-select">
+                                                <option value="" selected="selected">(Select Model)</option>
+                                                <option value="AP500D/AP510D">AP500D/AP510D</option>
+                                                <option value="AP500M/AP510M">AP500M/AP510M</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-md-2">
+                                        <div class="mb-3">
+                                            <label class="form-label">Template</label>
+                                            <input type="text" name="template_name" class="form-control">
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-12 text-end">
+                                        <button type="submit" class="btn btn-primary">Upload</button>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
 
                     </div>
@@ -281,30 +276,35 @@
     </div>
 
     @section('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function () {
-    $('#addMacForm').on('submit', function (e) {
+    $('#deviceForm').on('submit', function (e) {
         e.preventDefault();
 
+        let formData = new FormData(this);
+
         $.ajax({
-            url: "{{ route('provisioning.mac.store') }}",
+            url: "{{ route('provisioning.mac.import') }}", // new route for import
             type: "POST",
-            data: $(this).serialize(),
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function (response) {
                 if (response.success) {
-                    // reset form
-                    $('#addMacForm')[0].reset();
-
-                    // reload datatable if exists
-                    if ($.fn.DataTable.isDataTable('#macTable')) {
-                        $('#macTable').DataTable().ajax.reload(null, false);
-                    }
-                    $('#successToast .toast-body').text(response.message);
-                    new bootstrap.Toast(document.getElementById('successToast')).show();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: response.message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(() => {
+                        location.reload();
+                    });
                 }
             },
             error: function (xhr) {
@@ -313,149 +313,203 @@ $(document).ready(function () {
                     let errors = xhr.responseJSON.errors;
                     message = Object.values(errors).map(arr => arr.join(' ')).join("\n");
                 }
-                $('#errorToast .toast-body').text(message);
-                new bootstrap.Toast(document.getElementById('errorToast')).show();
-            }
-        });
-    });
-});
-</script>
-
-<script>
-$(document).ready(function() {
-
-     $.ajaxSetup({
-        headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
-    });
-
-     const table = $('#macTable').DataTable({
-        ajax: {
-            url: '{{ route("provisioning.mac.data") }}',
-            data: d => {
-                d.vendor = $('#vendor').val();
-                d.model = $('#model').val();
-                d.reseller = $('select[name="reseller"]').val();
-                d.template_name = $('input[name="template_name"]').val();
-            },
-            dataSrc: json => Array.isArray(json) ? json : (json.data ?? [])
-        },
-        columns: [
-            { data: 'id', orderable: false, render: data => `<input type="checkbox" class="row-checkbox" value="${data}">` },
-            { data: 'mac_name' },
-            { data: 'vendor' },
-            { data: 'model' },
-            { data: 'template_name' },
-            { data: 're_seller' },
-            { data: 'modified_date' },
-   ],
-        paging: true,
-        searching: false,
-        lengthChange: false,
-        info: false
-    });
-
-     table.on('processing.dt', (e, settings, processing) => {
-        if (processing) $('#loader_overlay').fadeIn(100);
-        else $('#loader_overlay').fadeOut(300);
-    });
-
-// ✅ Delegated event to handle "Select All" properly
-    $(document).on('change', '#selectAll', function () {
-        const checked = $(this).prop('checked');
-        $('#macTable').find('.row-checkbox').prop('checked', checked);
-    });
-
-     $('#filterForm').on('submit', e => {
-        e.preventDefault();
-        $('#loader_overlay').fadeIn(100);
-        table.ajax.reload(() => $('#loader_overlay').fadeOut(300));
-    });
-
-    // ✅ Clear filters
-    $('#clearFilters').on('click', () => {
-        $('#filterForm')[0].reset();
-        $('#model').html('<option value="">Select Model</option>');
-        $('#loader_overlay').fadeIn(100);
-        table.ajax.reload(() => $('#loader_overlay').fadeOut(300));
-    });
-
-    // ✅ Bulk Delete Button Click
-    $(document).on('click', '#deleteSelected', function () {
-        let selectedIds = [];
-        $('#macTable').find('.row-checkbox:checked').each(function () {
-            selectedIds.push($(this).val());
-        });
-
-        if (selectedIds.length === 0) {
-            Swal.fire('No Selection', 'Please select at least one record.', 'warning');
-            return;
-        }
-
-        Swal.fire({
-            title: 'Are you sure?',
-            text: 'Selected records will be permanently deleted.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete!',
-            cancelButtonText: 'Cancel',
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: "{{ route('provisioning.mac.bulkDelete') }}",
-                    method: "POST",
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                        ids: selectedIds
-                    },
-                    success: function (response) {
-                        Swal.fire('Deleted!', response.message, 'success');
-                        table.ajax.reload(null, false);
-                        $('#selectAll').prop('checked', false); // Uncheck after reload
-                    },
-                    error: function (xhr) {
-                        Swal.fire('Error', xhr.responseJSON.message || 'Something went wrong.', 'error');
-                    }
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: message
                 });
             }
         });
     });
-
-$(document).on('change', '.template-select', function () {
-    const macId = $(this).data('mac-id');
-    const templateName = $(this).val();
-
-    $.ajax({
-        url: "{{ route('provisioning.mac.updateTemplate') }}",
-        method: "POST",
-        data: {
-            _token: '{{ csrf_token() }}',
-            mac_id: macId,
-            template_name: templateName,
-        },
-        success: function (res) {
-            if (res.success) {
-                console.log("Template updated successfully!");
-            }
-        },
-    });
-});
-
-
 });
 </script>
 
-<script>
-$('#vendor').on('change', function() {
-    let vendor = $(this).val();
-    $('#model').html('<option>Loading...</option>');
-    $.get('/provisioning/get-models/' + vendor, function(data) {
-        $('#model').empty().append('<option value="">Select Model</option>');
-        $.each(data, function(key, value) {
-            $('#model').append('<option value="' + key + '">' + value + '</option>');
-        });
-    });
-});
-</script>
+        <script>
+            $(document).ready(function () {
+                $('#addMacForm').on('submit', function (e) {
+                    e.preventDefault();
 
-@endsection
+                    $.ajax({
+                        url: "{{ route('provisioning.mac.store') }}",
+                        type: "POST",
+                        data: $(this).serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                // Reset form (optional)
+                                $('#deviceForm')[0].reset();
+
+                                // Reload DataTable if exists
+                                if ($.fn.DataTable.isDataTable('#macTable')) {
+                                    $('#macTable').DataTable().ajax.reload(null, false);
+                                }
+
+                                // Show SweetAlert success popup, then reload
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Success!',
+                                    text: response.message,
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                }).then(() => {
+                                    // Reload the page after alert closes
+                                    location.reload();
+                                });
+                            }
+                        },
+                        error: function (xhr) {
+                            let message = "Something went wrong!";
+                            if (xhr.responseJSON && xhr.responseJSON.errors) {
+                                let errors = xhr.responseJSON.errors;
+                                message = Object.values(errors).map(arr => arr.join(' ')).join("\n");
+                            }
+
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error!',
+                                text: message
+                            });
+                        }
+                    });
+                });
+            });
+        </script>
+
+
+        <script>
+            $(document).ready(function () {
+
+                $.ajaxSetup({
+                    headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+                });
+
+                const table = $('#macTable').DataTable({
+                    ajax: {
+                        url: '{{ route("provisioning.mac.data") }}',
+                        data: d => {
+                            d.vendor = $('#vendor').val();
+                            d.model = $('#model').val();
+                            d.reseller = $('select[name="reseller"]').val();
+                            d.template_name = $('input[name="template_name"]').val();
+                        },
+                        dataSrc: json => Array.isArray(json) ? json : (json.data ?? [])
+                    },
+                    columns: [
+                        { data: 'id', orderable: false, render: data => `<input type="checkbox" class="row-checkbox" value="${data}">` },
+                        { data: 'mac_name' },
+                        { data: 'vendor' },
+                        { data: 'model' },
+                        { data: 'template_name' },
+                        { data: 're_seller' },
+                        { data: 'modified_date' },
+                    ],
+                    paging: true,
+                    searching: false,
+                    lengthChange: false,
+                    info: false
+                });
+
+                table.on('processing.dt', (e, settings, processing) => {
+                    if (processing) $('#loader_overlay').fadeIn(100);
+                    else $('#loader_overlay').fadeOut(300);
+                });
+
+                // ✅ Delegated event to handle "Select All" properly
+                $(document).on('change', '#selectAll', function () {
+                    const checked = $(this).prop('checked');
+                    $('#macTable').find('.row-checkbox').prop('checked', checked);
+                });
+
+                $('#filterForm').on('submit', e => {
+                    e.preventDefault();
+                    $('#loader_overlay').fadeIn(100);
+                    table.ajax.reload(() => $('#loader_overlay').fadeOut(300));
+                });
+
+                // ✅ Clear filters
+                $('#clearFilters').on('click', () => {
+                    $('#filterForm')[0].reset();
+                    $('#model').html('<option value="">Select Model</option>');
+                    $('#loader_overlay').fadeIn(100);
+                    table.ajax.reload(() => $('#loader_overlay').fadeOut(300));
+                });
+
+                // ✅ Bulk Delete Button Click
+                $(document).on('click', '#deleteSelected', function () {
+                    let selectedIds = [];
+                    $('#macTable').find('.row-checkbox:checked').each(function () {
+                        selectedIds.push($(this).val());
+                    });
+
+                    if (selectedIds.length === 0) {
+                        Swal.fire('No Selection', 'Please select at least one record.', 'warning');
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: 'Selected records will be permanently deleted.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Yes, delete!',
+                        cancelButtonText: 'Cancel',
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            $.ajax({
+                                url: "{{ route('provisioning.mac.bulkDelete') }}",
+                                method: "POST",
+                                data: {
+                                    _token: '{{ csrf_token() }}',
+                                    ids: selectedIds
+                                },
+                                success: function (response) {
+                                    Swal.fire('Deleted!', response.message, 'success');
+                                    table.ajax.reload(null, false);
+                                    $('#selectAll').prop('checked', false); // Uncheck after reload
+                                },
+                                error: function (xhr) {
+                                    Swal.fire('Error', xhr.responseJSON.message || 'Something went wrong.', 'error');
+                                }
+                            });
+                        }
+                    });
+                });
+
+                $(document).on('change', '.template-select', function () {
+                    const macId = $(this).data('mac-id');
+                    const templateName = $(this).val();
+
+                    $.ajax({
+                        url: "{{ route('provisioning.mac.updateTemplate') }}",
+                        method: "POST",
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            mac_id: macId,
+                            template_name: templateName,
+                        },
+                        success: function (res) {
+                            if (res.success) {
+                                console.log("Template updated successfully!");
+                            }
+                        },
+                    });
+                });
+
+
+            });
+        </script>
+
+        <script>
+            $('#vendor').on('change', function () {
+                let vendor = $(this).val();
+                $('#model').html('<option>Loading...</option>');
+                $.get('/provisioning/get-models/' + vendor, function (data) {
+                    $('#model').empty().append('<option value="">Select Model</option>');
+                    $.each(data, function (key, value) {
+                        $('#model').append('<option value="' + key + '">' + value + '</option>');
+                    });
+                });
+            });
+        </script>
+
+    @endsection
 @endsection
