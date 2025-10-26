@@ -189,7 +189,7 @@
             </div>
             <div class="row mt-2">
                 <div class="col-md-6">
-                    <button class="btn btn-primary" id="deleteSelectedBtn">PUSH CONFIGURATION TO PUBLIC SERVER</button>
+                    <button class="btn btn-primary" id="pushSelectedBtn">PUSH CONFIGURATION TO PUBLIC SERVER</button>
                 </div>
                 <div class="col-md-6 text-end">
                     <button class="btn btn-danger" id="deleteSelectedBtn">Delete</button>
@@ -203,7 +203,7 @@
                             <h2 class="text-lime mb-0">Import Extensions</h2>
                         </div>
                         <div class="card-body">
-                                <form id="deviceForm">
+                                <form id="deviceForm" >
                                     @csrf
                                     <div class="row row-cards">
                                         <div class="col-sm-6 col-md-3">
@@ -262,98 +262,248 @@
         </div>
     </div>
 
-    @section('scripts')
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+ @section('scripts')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
-$(document).ready(function() {
-    let table = $('#extension').DataTable({
-        ajax: "{{ route('provisioning.extensions.data') }}",
-        columns: [
-            { data: 'checkbox', orderable: false, searchable: false },
-            { data: 'extension' },
-            { data: 'mac_id' },
-            { data: 'vendor' },
-            { data: 'model' },
-            { data: 'template_name' },
-            { data: 'ucx_sn' },
-            { data: 'site_name' },
-            { data: 'server_address' },
-            { data: 'last_push' },
-        ],
-        order: [[1, 'asc']],
-        columnDefs: [
-            { targets: 0, className: 'text-center', width: '5%' },
-        ],
-        processing: true,
-        serverSide: false, // since you’re returning JSON manually
-        responsive: true,
-        createdRow: function(row, data) {
-            $(row).find('td:first').addClass('text-center');
-        },
-        searching: false,
-    lengthChange: false,
-    info: false,
+ $(document).ready(function () {
+
+   $('#deviceForm').on('submit', function (e) {
+        e.preventDefault();
+
+        let formData = new FormData(this);
+
+        $.ajax({
+            url: "{{ route('provisioning.import.extensions') }}",
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function() {
+                Swal.fire({ title: 'Importing...', text: 'Please wait', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+            },
+            success: function (response) {
+                Swal.fire('Success', response.message, 'success');
+                $('#deviceForm')[0].reset();
+            },
+            error: function (xhr) {
+                let msg = xhr.responseJSON?.message || 'An error occurred.';
+                Swal.fire('Error', msg, 'error');
+            }
+        });
     });
 
-    // ✅ Select All checkbox
-    $('#selectAll').on('click', function() {
-        const isChecked = $(this).prop('checked');
-        $('.record-checkbox').prop('checked', isChecked);
-    });
 
-      // ✅ Handle MAC dropdown change dynamically
+$('#pushSelectedBtn').on('click', function() {
+    const selectedIds = $('.record-checkbox:checked').map(function() {
+        return $(this).val();
+    }).get();
 
-$(document).on('change', '.mac-select', function () {
-    const macId = $(this).val();
-    const extensionId = $(this).data('extension');
-    const $row = $(this).closest('tr');
-    const row = table.row($row);
-
-    if (!row.node()) return;
+    if (selectedIds.length === 0) {
+        Swal.fire('No selection', 'Please select at least one record.', 'warning');
+        return;
+    }
 
     $.ajax({
-        url: "{{ route('provisioning.extensions.updateMac') }}",
-        method: "POST",
+        url: "{{ route('provisioning.extensions.exportCfg') }}",
+        type: 'POST',
+        xhrFields: { responseType: 'blob' },
         data: {
-            _token: '{{ csrf_token() }}',
-            mac_id: macId,
-            extension_id: extensionId,
+            ids: selectedIds,
+            _token: '{{ csrf_token() }}'
         },
-        success: function (res) {
-            if (res.success) {
-                // ✅ Update the row instantly
-                const rowData = row.data();
-                rowData.vendor = res.vendor;
-                rowData.model = res.model;
-                rowData.template_name = res.template_name;
-                row.data(rowData).invalidate().draw(false);
-
-                // ✅ Keep the MAC selected
-                setTimeout(() => {
-                    $(`#mac_select_${extensionId}`).val(macId);
-                }, 100);
-
-                // ✅ Highlight success
-                $row.addClass('table-success');
-                setTimeout(() => $row.removeClass('table-success'), 800);
-            }
+        success: function(blob) {
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = 'extensions_config_' + new Date().toISOString().replace(/[:.]/g, '_') + '.cfg';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
         },
-        error: function (xhr) {
-            console.error(xhr.responseText);
-        },
+        error: function(err) {
+            Swal.fire('Error', 'Failed to generate configuration file.', 'error');
+        }
     });
 });
 
 
+
+    // ✅ Initialize Select2
+    $('.select2').select2();
+
+    // ✅ DataTable initialization
+   let table = $('#extension').DataTable({
+    ajax: {
+        url: "{{ route('provisioning.extensions.data') }}",
+        type: "GET",
+        data: function (d) {
+            return $('#filterForm').serializeArray().reduce((obj, item) => {
+                obj[item.name] = item.value;
+                return obj;
+            }, {});
+        },
+        beforeSend: function () {
+            // ✅ Show your overlay when request starts
+            $('#loader_overlay').show();
+        },
+        complete: function () {
+            // ✅ Hide overlay when request finishes
+            $('#loader_overlay').hide();
+        },
+        dataSrc: 'data'
+    },
+    columns: [
+        { data: 'checkbox', orderable: false, searchable: false },
+        { data: 'extension' },
+        { data: 'mac_id' },
+        { data: 'vendor' },
+        { data: 'model' },
+        { data: 'template_name' },
+        { data: 'ucx_sn' },
+        { data: 'site_name' },
+        { data: 'server_address' },
+        { data: 'last_push' },
+    ],
+    order: [[1, 'asc']],
+    processing: true,
+    serverSide: false,
+    responsive: true,
+    searching: false,
+    lengthChange: false,
+    info: false,
+    language: {
+        processing:
+            '<div class="spinner-border text-primary" role="status">' +
+            '<span class="visually-hidden">Loading...</span></div>'
+    },
+    drawCallback: function () {
+        $('#selectAll').prop('checked', false);
+    }
+});
+
+// ✅ Hide overlay once data is actually received
+table.on('xhr.dt', function () {
+    $('#loader_overlay').hide();
+});
+
+// ✅ Filter form submit
+$('#filterForm').on('submit', function (e) {
+    e.preventDefault();
+    $('#loader_overlay').show(); // show loader when filter is applied
+    table.ajax.reload(null, false);
+});
+
+    // ✅ Apply Filters
+    $('#filterForm').on('submit', function(e) {
+        e.preventDefault();
+        table.ajax.reload(null, false);
+    });
+
+    // ✅ Clear Filters
+    $('#clearFilters').on('click', function() {
+        $('#filterForm')[0].reset();
+        $('.select2').val('').trigger('change');
+        table.ajax.reload(null, false);
+    });
+
+    // ✅ Select All Checkbox
+    $('#selectAll').on('click', function() {
+        $('.record-checkbox').prop('checked', $(this).prop('checked'));
+    });
+
+    // ✅ MAC Dropdown Update
+    $(document).on('change', '.mac-select', function () {
+        const macId = $(this).val();
+        const extensionId = $(this).data('extension');
+        const $row = $(this).closest('tr');
+        const row = table.row($row);
+
+        $.ajax({
+            url: "{{ route('provisioning.extensions.updateMac') }}",
+            type: "POST",
+            data: {
+                _token: '{{ csrf_token() }}',
+                mac_id: macId,
+                extension_id: extensionId,
+            },
+            success: function (res) {
+                if (res.success) {
+                    const rowData = row.data();
+                    rowData.vendor = res.vendor;
+                    rowData.model = res.model;
+                    rowData.template_name = res.template_name;
+                    row.data(rowData).invalidate().draw(false);
+                    $row.addClass('table-success');
+                    setTimeout(() => $row.removeClass('table-success'), 800);
+                }
+            },
+            error: function () {
+                Swal.fire('Error', 'Failed to update MAC mapping.', 'error');
+            }
+        });
+    });
+
+    // ✅ Single or Bulk Delete
+    $('#deleteSelectedBtn').on('click', function () {
+        const selected = $('.record-checkbox:checked').map(function () {
+            return $(this).val();
+        }).get();
+
+        if (selected.length === 0) {
+            Swal.fire('No Selection', 'Please select at least one record.', 'warning');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Are you sure?',
+            html: selected.length === 1
+                ? 'This record will be permanently deleted.'
+                : 'Selected records will be permanently deleted.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete!',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const url = selected.length === 1
+                    ? "{{ url('/provisioning/extensions') }}/" + selected[0]
+                    : "{{ route('provisioning.extensions.bulk-delete') }}";
+
+                const type = selected.length === 1 ? 'DELETE' : 'POST';
+
+                $.ajax({
+                    url: url,
+                    type: type,
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        ids: selected
+                    },
+                    success: function (res) {
+                        Swal.fire('Deleted!', res.message, 'success');
+                        table.ajax.reload(null, false);
+                    },
+                    error: function () {
+                        Swal.fire('Error', 'Failed to delete records.', 'error');
+                    }
+                });
+            }
+        });
+    });
 
 });
 </script>
 
+
+
+
 @endsection
+
+
 @endsection
