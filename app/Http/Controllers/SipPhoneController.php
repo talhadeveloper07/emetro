@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 
 
 class SipPhoneController extends Controller
@@ -126,6 +128,7 @@ class SipPhoneController extends Controller
         ]);
     }
 
+    
   public function getMacData(Request $request)
 {
     $query = Mac::query()
@@ -385,46 +388,95 @@ public function import_mac(Request $request)
         return Storage::disk('local')->download($template->file_location, $filename);
     }
 
-    public function getExtensions(Request $request)
-    {
-        $query = DB::table('extension')
-            ->leftJoin('product_serial', 'extension.slno', '=', 'product_serial.slno')
-            ->leftJoin('product_serial_parent_child', 'product_serial.slno', '=', 'product_serial_parent_child.slno')
-            ->leftJoin('mac', 'mac.id', '=', 'extension.mac')
-            ->select(
-                'extension.id as extension_id',
-                'extension.extension',
-                'extension.mac as mac_selected_id',
-                'mac.id as mac_id',
-                'mac.vendor',
-                'mac.model',
-                'mac.template_name',
-                'extension.slno as ucx_sn',
-                'product_serial_parent_child.site_name',
-                'extension.server_address',
-                'extension.port',
-                'extension.last_push'
-            )
-            ->orderBy('extension.id', 'desc')
-            ->get();
-    
-        return response()->json([
-            'data' => $query->map(function ($item) {
-                return [
-                    'checkbox' => '<input type="checkbox" class="record-checkbox" value="' . $item->extension_id . '">',
-                    'extension' => e($item->extension),
-                    'mac_id' => $this->macSelect($item->mac_selected_id, $item->extension_id),
-                    'vendor' => e($item->vendor ?? ''),
-                    'model' => e($item->model ?? ''),
-                    'template_name' => e($item->template_name ?? ''),
-                    'ucx_sn' => e($item->ucx_sn ?? ''),
-                    'site_name' => e($item->site_name ?? 'N/A'),
-                    'server_address' => e($item->server_address ?? ''),
-                    'last_push' => $item->last_push ? date('Y-m-d', strtotime($item->last_push)) : '-',
-                ];
-            }),
-        ]);
+public function getExtensions(Request $request)
+{
+    $query = DB::table('extension')
+        ->leftJoin('product_serial', 'extension.slno', '=', 'product_serial.slno')
+        ->leftJoin('product_serial_parent_child', 'product_serial.slno', '=', 'product_serial_parent_child.slno')
+        ->leftJoin('mac', 'mac.id', '=', 'extension.mac')
+        ->select(
+            'extension.id as extension_id',
+            'extension.extension',
+            'extension.mac as mac_selected_id',
+            'mac.id as mac_id',
+            'mac.vendor',
+            'mac.model',
+            'mac.template_name',
+            'extension.slno as ucx_sn',
+            'product_serial_parent_child.site_name',
+            'extension.server_address',
+            'extension.port',
+            'extension.last_push'
+        );
+
+    // ✅ Filters (added all possible form fields)
+    if ($request->filled('reseller')) {
+        $query->where('product_serial.reseller', 'like', "%{$request->reseller}%");
     }
+
+    if ($request->filled('extension')) {
+        $query->where('extension.extension', 'like', "%{$request->extension}%");
+    }
+
+    if ($request->filled('mac')) {
+        $query->where('mac.id', $request->mac);
+    }
+
+    if ($request->filled('site_name')) {
+        $query->where('product_serial_parent_child.site_name', 'like', "%{$request->site_name}%");
+    }
+
+    if ($request->filled('port')) {
+        $query->where('extension.port', 'like', "%{$request->port}%");
+    }
+
+    if ($request->filled('server_address')) {
+        $query->where('extension.server_address', 'like', "%{$request->server_address}%");
+    }
+
+    if ($request->filled('ucx_slno')) {
+        $query->where('extension.slno', 'like', "%{$request->ucx_slno}%");
+    }
+
+    if ($request->filled('vendor')) {
+        $query->where('mac.vendor', 'like', "%{$request->vendor}%");
+    }
+
+    if ($request->filled('model')) {
+        $query->where('mac.model', 'like', "%{$request->model}%");
+    }
+
+    if ($request->filled('template_name')) {
+        $query->where('mac.template_name', 'like', "%{$request->template_name}%");
+    }
+
+    // ✅ Get results
+    $extensions = $query->orderBy('extension.id', 'desc')->get();
+
+    // ✅ Response
+    return response()->json([
+        'data' => $extensions->map(function ($item) {
+            return [
+                'checkbox' => '<input type="checkbox" class="record-checkbox" value="' . $item->extension_id . '">',
+                'extension' => e($item->extension),
+                'mac_id' => $this->macSelect($item->mac_selected_id, $item->extension_id),
+                'vendor' => e($item->vendor ?? ''),
+                'model' => e($item->model ?? ''),
+                'template_name' => e($item->template_name ?? ''),
+                'ucx_sn' => e($item->ucx_sn ?? ''),
+                'site_name' => e($item->site_name ?? 'N/A'),
+                'server_address' => e($item->server_address ?? ''),
+                'last_push' => $item->last_push ? date('Y-m-d', strtotime($item->last_push)) : '-',
+                'actions' => '
+                    <button class="btn btn-sm btn-danger delete-btn" data-id="' . $item->extension_id . '">
+                        <i class="fas fa-trash"></i>
+                    </button>'
+            ];
+        }),
+    ]);
+}
+
+
     
     private function macSelect($selectedMacId = null, $extensionId)
     {
@@ -498,6 +550,216 @@ public function import_mac(Request $request)
     }
 
     
+
+
+public function exportSelected(Request $request)
+{
+    $ids = explode(',', $request->query('ids', ''));
+
+    if (empty($ids)) {
+        return redirect()->back()->with('error', 'No records selected');
+    }
+
+    $extensions = DB::table('extension')
+        ->leftJoin('product_serial', 'extension.slno', '=', 'product_serial.slno')
+        ->leftJoin('product_serial_parent_child', 'product_serial.slno', '=', 'product_serial_parent_child.slno')
+        ->leftJoin('mac', 'mac.id', '=', 'extension.mac')
+        ->whereIn('extension.id', $ids)
+        ->select(
+            'extension.extension',
+            'mac.vendor',
+            'mac.model',
+            'mac.template_name',
+            'extension.slno as ucx_sn',
+            'product_serial_parent_child.site_name',
+            'extension.server_address',
+            'extension.last_push'
+        )
+        ->get();
+
+    $response = new StreamedResponse(function() use ($extensions) {
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, ['Extension', 'Vendor', 'Model', 'Template', 'UCX SN', 'Site Name', 'Server Address', 'Last Push']);
+        foreach ($extensions as $row) {
+            fputcsv($handle, [
+                $row->extension,
+                $row->vendor,
+                $row->model,
+                $row->template_name,
+                $row->ucx_sn,
+                $row->site_name,
+                $row->server_address,
+                $row->last_push
+            ]);
+        }
+        fclose($handle);
+    });
+
+    $filename = 'selected_extensions_' . date('Y_m_d_H_i_s') . '.csv';
+    $response->headers->set('Content-Type', 'text/csv');
+    $response->headers->set('Content-Disposition', 'attachment; filename="' . $filename . '"');
+
+    return $response;
+}
+
+public function bulkDelete(Request $request)
+{
+    $ids = $request->input('ids', []);
+    if (empty($ids)) {
+        return response()->json(['message' => 'No records selected.'], 400);
+    }
+
+    DB::table('extension')->whereIn('id', $ids)->delete();
+    return response()->json(['message' => 'Selected records deleted successfully.']);
+}
+
+public function destroy($id)
+{
+    $deleted = DB::table('extension')->where('id', $id)->delete();
+
+    if ($deleted) {
+        return response()->json(['message' => 'Record deleted successfully.']);
+    }
+
+    return response()->json(['message' => 'Record not found.'], 404);
+}
+
+
+
+
+public function exportCfg(Request $request)
+{
+    $ids = $request->input('ids', []);
+
+    if (empty($ids)) {
+        return response()->json(['message' => 'No records selected.'], 400);
+    }
+
+    $records = DB::table('extension')
+        ->leftJoin('product_serial', 'extension.slno', '=', 'product_serial.slno')
+        ->leftJoin('product_serial_parent_child', 'product_serial.slno', '=', 'product_serial_parent_child.slno')
+        ->leftJoin('mac', 'mac.id', '=', 'extension.mac')
+        ->select(
+            'extension.extension',
+            'mac.vendor',
+            'mac.model',
+            'mac.template_name',
+            'extension.slno as ucx_sn',
+            'product_serial_parent_child.site_name',
+            'extension.server_address',
+            'extension.port',
+            'extension.last_push'
+        )
+        ->whereIn('extension.id', $ids)
+        ->get();
+
+    if ($records->isEmpty()) {
+        return response()->json(['message' => 'No data found.'], 404);
+    }
+
+    // Create .cfg content
+    $cfgContent = "# Auto-Generated Configuration File\n";
+    $cfgContent .= "# Generated on: " . now()->format('Y-m-d H:i:s') . "\n\n";
+
+    foreach ($records as $r) {
+        $cfgContent .= "###########################################\n";
+        $cfgContent .= "Extension={$r->extension}\n";
+        $cfgContent .= "Vendor={$r->vendor}\n";
+        $cfgContent .= "Model={$r->model}\n";
+        $cfgContent .= "Template={$r->template_name}\n";
+        $cfgContent .= "UCX_SN={$r->ucx_sn}\n";
+        $cfgContent .= "SiteName={$r->site_name}\n";
+        $cfgContent .= "ServerAddress={$r->server_address}\n";
+        $cfgContent .= "Port={$r->port}\n";
+        $cfgContent .= "LastPush={$r->last_push}\n\n";
+    }
+
+    $filename = 'extensions_' . date('Ymd_His') . '.cfg';
+
+    // Return as file download
+    return response($cfgContent)
+        ->header('Content-Type', 'text/plain')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
+}
+
+
+
+
+
+
+// 
+
+
+public function importExtensions(Request $request)
+{
+    $request->validate([
+        'reseller' => 'required',
+        'ucx_slno' => 'required',
+        'server_address' => 'required',
+        'port' => 'required',
+        'extension_file' => 'required|mimes:csv,txt|max:2048',
+    ]);
+
+    $file = $request->file('extension_file');
+    $path = $file->getRealPath();
+
+    $rows = array_map('str_getcsv', file($path));
+    $header = array_map(fn($h) => strtolower(trim($h)), array_shift($rows));
+
+    // ✅ Normalize column headers (lowercase)
+    $requiredHeaders = ['display name', 'user extension', 'secret', 'tech', 'mac'];
+
+    foreach ($requiredHeaders as $col) {
+        if (!in_array($col, $header)) {
+            return response()->json([
+                'message' => "Invalid CSV format. Missing column: $col"
+            ], 422);
+        }
+    }
+
+    $inserted = 0;
+
+    foreach ($rows as $row) {
+        // Combine header + data safely
+        $data = array_combine($header, $row);
+
+        if (!$data) continue;
+
+        // ✅ Only process rows with Tech = sip
+        if (strtolower(trim($data['tech'] ?? '')) !== 'sip') continue;
+
+        DB::table('extension')->updateOrInsert(
+            ['extension' => trim($data['user extension'])],
+            [
+                'slno'           => $request->ucx_slno,
+                'server_address' => $request->server_address,
+                'port'           => $request->port,
+                'extension'      => trim($data['user extension']),
+                'display_name'   => trim($data['display name']),
+                'secret'         => trim($data['secret']),
+                'mac'            => trim($data['mac']),
+                'status'         => 'active',
+                're_seller'      => $request->reseller,
+                'last_push'      => now(),
+                'created_at'     => now(),
+                'updated_at'     => now(),
+            ]
+        );
+
+        $inserted++;
+    }
+
+    return response()->json([
+        'message' => "✅ Import completed successfully. ($inserted records imported)"
+    ]);
+}
+
+
+
+
+
+
+// 
 
 
 
